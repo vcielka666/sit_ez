@@ -1,9 +1,13 @@
-import Dashboard from "@/components/Dashboard";
+import Page from "./adminDashboard/page";
+
 
 export default function Home() {
+  
+
+  
   return (
     <div>
-    <Dashboard />
+      <Page></Page>
     </div>
-  );
+  )
 }

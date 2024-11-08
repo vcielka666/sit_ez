@@ -1,4 +1,5 @@
-"use client"
+"use client";
+
 import { Calendar, ChevronDown, Home, Inbox, Search, Settings } from "lucide-react";
 import {
   Sidebar,
@@ -13,60 +14,63 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@radix-ui/react-collapsible";
 import { useState } from "react";
 import Image from "next/image";
+import Logout from "./Logout";
 
-// Menu items.
+type AppSidebarProps = {
+  onSelectLocation: (location: string) => void;
+};
+
 const applicationItems = [
   {
-    title: "Home",
-    url: "#",
+    title: "Restaurant 1",
     icon: Home,
   },
   {
-    title: "Inbox",
-    url: "#",
+    title: "Restaurant 2",
+    icon: Home,
+  },
+  {
+    title: "Pub 1",
+    icon: Home,
+  },
+];
+
+const notificationsItems = [
+  {
+    title: "Create Notification",
+    icon: Settings,
+  },
+  {
+    title: "Set Happy Hour",
     icon: Inbox,
   },
   {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
-  },
-];
-
-const helpItems = [
-  {
     title: "Search",
-    url: "#",
     icon: Search,
   },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
-  },
 ];
 
-export function AppSidebar() {
+export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
   const [isAppOpen, setAppOpen] = useState(false);
-  const [isHelpOpen, setHelpOpen] = useState(false);
+  const [isNotificationsOpen, setNotificationsOpen] = useState(false);
 
   return (
     <Sidebar>
-         <Image 
+      <Image className="w-[50%] rounded-full p-4"
         src="/logo.png"
         width="100"
         height="100"
         alt="logo"
-        style={{left:"50%", position:"relative", transform:"translateX(-50%)"}}
-        />
+        style={{ left: "50%", position: "relative", transform: "translateX(-50%)" }}
+      />
       <SidebarContent>
 
-        {/* Application Group */}
+        {/* Pubs/Restaurants Group */}
         <Collapsible open={isAppOpen} onOpenChange={setAppOpen}>
           <SidebarGroup>
             <SidebarGroupLabel asChild>
               <CollapsibleTrigger className="flex items-center">
-                Application
+                Pubs/Restaurants
                 <ChevronDown className={`ml-auto transition-transform ${isAppOpen ? "rotate-180" : ""}`} />
               </CollapsibleTrigger>
             </SidebarGroupLabel>
@@ -75,11 +79,11 @@ export function AppSidebar() {
                 <SidebarMenu>
                   {applicationItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild>
-                        <a href={item.url}>
+                      <SidebarMenuButton asChild onClick={() => onSelectLocation(item.title)}>
+                        <button className="flex items-center gap-2">
                           <item.icon />
                           <span>{item.title}</span>
-                        </a>
+                        </button>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}
@@ -89,25 +93,25 @@ export function AppSidebar() {
           </SidebarGroup>
         </Collapsible>
 
-        {/* Help Group */}
-        <Collapsible open={isHelpOpen} onOpenChange={setHelpOpen}>
+        {/* Notifications and Happy Hours Group */}
+        <Collapsible open={isNotificationsOpen} onOpenChange={setNotificationsOpen}>
           <SidebarGroup>
             <SidebarGroupLabel asChild>
               <CollapsibleTrigger className="flex items-center">
-                Help
-                <ChevronDown className={`ml-auto transition-transform ${isHelpOpen ? "rotate-180" : ""}`} />
+                Notifications & Happy Hours
+                <ChevronDown className={`ml-auto transition-transform ${isNotificationsOpen ? "rotate-180" : ""}`} />
               </CollapsibleTrigger>
             </SidebarGroupLabel>
             <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {helpItems.map((item) => (
+                  {notificationsItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild>
-                        <a href={item.url}>
+                        <button className="flex items-center gap-2">
                           <item.icon />
                           <span>{item.title}</span>
-                        </a>
+                        </button>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}
@@ -118,7 +122,8 @@ export function AppSidebar() {
         </Collapsible>
 
       </SidebarContent>
-     
+      <Logout />
+
     </Sidebar>
   );
 }
