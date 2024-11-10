@@ -1,6 +1,6 @@
 import SignIn from "./sign-in/page";
 import { auth } from "../../auth";
-import DashboardWrapper from "@/components/DashboardWrapper";
+import Page from "./adminDashboard/page";
 
 export default async function Home() {
   
@@ -12,7 +12,7 @@ console.log(session);
       <SignIn />)
       :(
         <div>
-      <DashboardWrapper/>
+      <Page/>
       <p>{session?.user?.name}</p>
       <p>{session?.user?.email}</p>
       </div>

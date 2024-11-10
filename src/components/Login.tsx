@@ -6,13 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Label } from "./ui/label";
 import  Link  from "next/link"
 import { login } from "../../actions/auth";
+import { FiArrowRight } from "react-icons/fi";
 
 const LoginGoogle = () => {
   return (
-    <div className="m-10 w-full flex justify-center items-center flex-col">
-      <Label> Login to your admin dashboard or{" "}
-        <Link className="text-[green]" href="/signin">
-          create a new admin account
+    <div className="w-full h-auto relative flex justify-center items-center flex-col">
+      <Label className=""> Login to your admin dashboard or{" "}
+        <Link className="text-[green] flex align-center m-4 justify-center" href="/signin">
+        create a new admin account<FiArrowRight />
+          
         </Link></Label>
       
       <Button

@@ -3,6 +3,7 @@ import "./globals.css";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "../../auth";
+import Navbar from "@/components/Navbar";
 
 
 
@@ -21,8 +22,9 @@ export default async function RootLayout({
     <SessionProvider session={session}>
     <html lang="en">
       <body >
+      <Navbar />
         <SidebarProvider>
-          <main>
+          <main className="w-full h-full">
             <SidebarTrigger />
             {children}
           </main>

@@ -10,7 +10,6 @@ const Page = () => {
 
     return (
         <div>
-    
     <DashboardWrapper/>
  
     </div>
