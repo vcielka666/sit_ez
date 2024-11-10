@@ -1,19 +1,13 @@
 "use client";
 
-import { signOut } from "next-auth/react";
 import { Button } from "./ui/button";
+import { logout } from "../../actions/auth";
 
 const Logout = () => {
   
-
-
-  const handleLogout = () => {
-    signOut({ callbackUrl: "/" });
-  };
-
   return (
     <div className="p-4">
-      <Button className="w-full p-6" onClick={handleLogout}>Logout</Button>
+      <Button className="w-full p-6" onClick={logout}>Logout</Button>
     </div>
   );
 };

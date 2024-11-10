@@ -5,14 +5,20 @@ import DashboardWrapper from "@/components/DashboardWrapper";
 export default async function Home() {
   
 const session = await auth();
-  
+console.log(session); 
   return (
     <div>
-      {!session?
-      <SignIn />
-      :
-      <DashboardWrapper />
-    }
+      {!session? (
+      <SignIn />)
+      :(
+        <div>
+      <DashboardWrapper/>
+      <p>{session?.user?.name}</p>
+      <p>{session?.user?.email}</p>
+      </div>
+      )
+} 
+    
     </div>
   )
 }
