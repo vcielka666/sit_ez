@@ -53,7 +53,6 @@ const notificationsItems = [
 export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
   const [isAppOpen, setAppOpen] = useState(false);
   const [isNotificationsOpen, setNotificationsOpen] = useState(false);
-
   return (
     <Sidebar>
       <Image className="w-[50%] rounded-full p-4"
@@ -123,6 +122,9 @@ export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
 
       </SidebarContent>
       <Logout />
+ 
+  
+      
 
     </Sidebar>
   );

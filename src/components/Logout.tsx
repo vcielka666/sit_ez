@@ -4,8 +4,11 @@ import { signOut } from "next-auth/react";
 import { Button } from "./ui/button";
 
 const Logout = () => {
+  
+
+
   const handleLogout = () => {
-    signOut({ callbackUrl: "/login" });
+    signOut({ callbackUrl: "/" });
   };
 
   return (

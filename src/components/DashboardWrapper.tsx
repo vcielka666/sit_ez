@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Dashboard from "@/components/Dashboard";
 import { AppSidebar } from "@/components/app-sidebar";
+import Page from "@/app/logout/page";
 
 const DashboardWrapper = () => {
   const [selectedLocation, setSelectedLocation] = useState<string>("default");
@@ -16,6 +17,7 @@ const DashboardWrapper = () => {
       <AppSidebar onSelectLocation={handleSelectLocation} />
       <main className="flex-grow">
         <Dashboard selectedLocation={selectedLocation} />
+        
       </main>
     </div>
   );

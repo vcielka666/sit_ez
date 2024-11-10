@@ -1,13 +1,18 @@
-import LoginGoogle from "@/components/Login";
 import SignIn from "./sign-in/page";
-export default function Home() {
-  
+import { auth } from "../../auth";
+import DashboardWrapper from "@/components/DashboardWrapper";
 
+export default async function Home() {
+  
+const session = await auth();
   
   return (
     <div>
-      <LoginGoogle />
+      {!session?
       <SignIn />
+      :
+      <DashboardWrapper />
+    }
     </div>
   )
 }
