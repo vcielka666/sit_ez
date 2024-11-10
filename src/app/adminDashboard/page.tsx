@@ -1,6 +1,7 @@
 "use client"
 import DashboardWrapper from "@/components/DashboardWrapper"
-import Login from "@/components/Login"
+import LoginGoogle from "@/components/Login"
+
 
 interface SessionData{
     session:boolean
@@ -17,7 +18,7 @@ const session = true;
     <DashboardWrapper/>
     </div>
     :
-    <Login /> 
+    <LoginGoogle /> 
     }
     
     </div>

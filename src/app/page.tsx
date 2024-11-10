@@ -1,13 +1,13 @@
-import Page from "./adminDashboard/page";
-
-
+import LoginGoogle from "@/components/Login";
+import SignIn from "./sign-in/page";
 export default function Home() {
   
 
   
   return (
     <div>
-      <Page></Page>
+      <LoginGoogle />
+      <SignIn />
     </div>
   )
 }

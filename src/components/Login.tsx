@@ -1,11 +1,12 @@
-import { LoginForm } from "./Form";
+import { FaGoogle } from "react-icons/fa";
 
-const Login = () => {
+const LoginGoogle = () => {
   return (
-    <div className="m-10 w-full justify-center ">
-      <LoginForm />
+    <div className="m-10 w-full justify-center">
+      <FaGoogle />
+      <p>Login with Google</p>
     </div>
   );
 };
 
-export default Login;
+export default LoginGoogle;
