@@ -12,28 +12,19 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@radix-ui/react-collapsible";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Logout from "./Logout";
+import { Button } from "./ui/button";
+
+type Place = {
+  id: string;
+  name: string;
+};
 
 type AppSidebarProps = {
   onSelectLocation: (location: string) => void;
 };
-
-const applicationItems = [
-  {
-    title: "Restaurant 1",
-    icon: Home,
-  },
-  {
-    title: "Restaurant 2",
-    icon: Home,
-  },
-  {
-    title: "Pub 1",
-    icon: Home,
-  },
-];
 
 const notificationsItems = [
   {
@@ -53,9 +44,65 @@ const notificationsItems = [
 export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
   const [isAppOpen, setAppOpen] = useState(false);
   const [isNotificationsOpen, setNotificationsOpen] = useState(false);
+  const [newPlaceName, setNewPlaceName] = useState("");
+  const [places, setPlaces] = useState<Place[]>([]);
+
+  // Fetch places when the component mounts
+  useEffect(() => {
+    const fetchPlaces = async () => {
+      try {
+        const response = await fetch("/api/getPlaces"); // Fetch all places for the logged-in user
+        const data = await response.json();
+        setPlaces(data);
+      } catch (error) {
+        console.error("Error fetching places:", error);
+      }
+    };
+
+    fetchPlaces();
+  }, []);
+
+  // Function to add a new place
+  const addNewPlace = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!newPlaceName.trim()) return;
+
+    try {
+      const response = await fetch("/api/addPlace", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: newPlaceName }),
+      });
+      const newPlace = await response.json();
+      setPlaces((prev) => [...prev, newPlace]); // Update the places list with the new place
+      setNewPlaceName(""); // Reset input after adding
+    } catch (err) {
+      console.error("Error adding place:", err);
+    }
+  };
+
+  // Function to delete a place
+  const deletePlace = async (id: string) => {
+    try {
+      const response = await fetch(`/api/deletePlace?placeId=${id}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        setPlaces((prev) => prev.filter((place) => place.id !== id)); // Update the places list
+      } else {
+        console.error("Failed to delete place");
+      }
+    } catch (error) {
+      console.error("Error deleting place:", error);
+    }
+  };
+
   return (
     <Sidebar>
-      <Image className="w-[50%] rounded-full p-4"
+      <Image
+        className="w-[50%] rounded-full p-4"
         src="/logo.png"
         width="100"
         height="100"
@@ -63,7 +110,6 @@ export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
         style={{ left: "50%", position: "relative", transform: "translateX(-50%)" }}
       />
       <SidebarContent>
-
         {/* Pubs/Restaurants Group */}
         <Collapsible open={isAppOpen} onOpenChange={setAppOpen}>
           <SidebarGroup>
@@ -76,17 +122,43 @@ export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
             <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {applicationItems.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild onClick={() => onSelectLocation(item.title)}>
-                        <button className="flex items-center gap-2">
-                          <item.icon />
-                          <span>{item.title}</span>
+                  {places.map((place) => (
+                    <SidebarMenuItem key={place.id}>
+                      <SidebarMenuButton asChild onClick={() => onSelectLocation(place.name)}>
+                        <button className="flex items-center gap-2 w-full justify-between">
+                          <span className="flex items-center gap-2">
+                            <Home />
+                            <span>{place.name}</span>
+                          </span>
+                          <span
+                            className="text-red-600 hover:text-red-800 cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deletePlace(place.id); // Delete place on button click
+                            }}
+                          >
+                            X
+                          </span>
                         </button>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}
                 </SidebarMenu>
+
+                {/* Add New Place Form */}
+                <form className="w-full flex flex-col mt-4" onSubmit={addNewPlace}>
+                  <input
+                    type="text"
+                    name="addNewPlace"
+                    placeholder="Insert name"
+                    value={newPlaceName}
+                    onChange={(e) => setNewPlaceName(e.target.value)}
+                    className="border border-black rounded-sm p-2"
+                  />
+                  <Button type="submit" className="p-2 mt-2 w-fit bg-green-800">
+                    Add New Place
+                  </Button>
+                </form>
               </SidebarGroupContent>
             </CollapsibleContent>
           </SidebarGroup>
@@ -119,13 +191,8 @@ export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
             </CollapsibleContent>
           </SidebarGroup>
         </Collapsible>
-
       </SidebarContent>
       <Logout />
- 
-  
-      
-
     </Sidebar>
   );
 }

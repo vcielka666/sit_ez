@@ -1,6 +1,7 @@
 import SignIn from "./sign-in/page";
 import { auth } from "../../auth";
 import Page from "./adminDashboard/page";
+import SignUpForm from "@/components/SignInForm";
 
 export default async function Home() {
   
@@ -9,12 +10,16 @@ console.log(session);
   return (
     <div>
       {!session? (
-      <SignIn />)
+        <div className="flex justify-center items-center flex-col m-2 w-full">
+      <SignUpForm/>
+      <SignIn />
+
+      </div>
+      )
       :(
         <div>
       <Page/>
-      <p>{session?.user?.name}</p>
-      <p>{session?.user?.email}</p>
+      
       </div>
       )
 } 

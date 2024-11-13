@@ -10,17 +10,13 @@ import { FiArrowRight } from "react-icons/fi";
 
 const LoginGoogle = () => {
   return (
-    <div className="w-full h-auto relative flex justify-center items-center flex-col">
-      <Label className=""> Login to your admin dashboard or{" "}
-        <Link className="text-[green] flex align-center m-4 justify-center" href="/signin">
-        create a new admin account<FiArrowRight />
-          
-        </Link></Label>
+    <div className="w-full h-auto flex justify-center items-center flex-col">
+   <p className="m-2">or</p>
       
       <Button
         type="button"
         onClick={() => login("google")}
-        className="mt-4"
+        className="mt-4 w-full"
       >
         <FaGoogle />
         Sign in with Google
