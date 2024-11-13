@@ -1,7 +1,17 @@
+// src/app/api/data/route.ts
 import { NextResponse } from "next/server";
-import { auth } from "../../../../auth";
+import { getToken } from "next-auth/jwt";
+import type { NextRequest } from "next/server";
 
-export const GET = auth(function GET(req) {
-    if (req.auth) return NextResponse.json(req.auth);
-    return NextResponse.json({ message: "Not Authenticated"}, { status: 401});
-})
+export async function GET(req: NextRequest) {
+  // Use `getToken` directly to check for a session
+  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+
+  if (token) {
+    // If there's a valid token, return the session info
+    return NextResponse.json(token);
+  } else {
+    // If not authenticated, return a 401 response
+    return NextResponse.json({ message: "Not Authenticated" }, { status: 401 });
+  }
+}
