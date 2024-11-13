@@ -47,11 +47,10 @@ export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
   const [newPlaceName, setNewPlaceName] = useState("");
   const [places, setPlaces] = useState<Place[]>([]);
 
-  // Fetch places when the component mounts
   useEffect(() => {
     const fetchPlaces = async () => {
       try {
-        const response = await fetch("/api/getPlaces"); // Fetch all places for the logged-in user
+        const response = await fetch("/api/getPlaces");
         const data = await response.json();
         setPlaces(data);
       } catch (error) {
@@ -62,7 +61,6 @@ export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
     fetchPlaces();
   }, []);
 
-  // Function to add a new place
   const addNewPlace = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!newPlaceName.trim()) return;
@@ -76,21 +74,20 @@ export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
         body: JSON.stringify({ name: newPlaceName }),
       });
       const newPlace = await response.json();
-      setPlaces((prev) => [...prev, newPlace]); // Update the places list with the new place
-      setNewPlaceName(""); // Reset input after adding
+      setPlaces((prev) => [...prev, newPlace]);
+      setNewPlaceName("");
     } catch (err) {
       console.error("Error adding place:", err);
     }
   };
 
-  // Function to delete a place
   const deletePlace = async (id: string) => {
     try {
       const response = await fetch(`/api/deletePlace?placeId=${id}`, {
         method: "DELETE",
       });
       if (response.ok) {
-        setPlaces((prev) => prev.filter((place) => place.id !== id)); // Update the places list
+        setPlaces((prev) => prev.filter((place) => place.id !== id));
       } else {
         console.error("Failed to delete place");
       }
@@ -110,7 +107,6 @@ export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
         style={{ left: "50%", position: "relative", transform: "translateX(-50%)" }}
       />
       <SidebarContent>
-        {/* Pubs/Restaurants Group */}
         <Collapsible open={isAppOpen} onOpenChange={setAppOpen}>
           <SidebarGroup>
             <SidebarGroupLabel asChild>
@@ -134,7 +130,7 @@ export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
                             className="text-red-600 hover:text-red-800 cursor-pointer"
                             onClick={(e) => {
                               e.stopPropagation();
-                              deletePlace(place.id); // Delete place on button click
+                              deletePlace(place.id);
                             }}
                           >
                             X
@@ -145,7 +141,6 @@ export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
                   ))}
                 </SidebarMenu>
 
-                {/* Add New Place Form */}
                 <form className="w-full flex flex-col mt-4" onSubmit={addNewPlace}>
                   <input
                     type="text"
@@ -164,7 +159,6 @@ export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
           </SidebarGroup>
         </Collapsible>
 
-        {/* Notifications and Happy Hours Group */}
         <Collapsible open={isNotificationsOpen} onOpenChange={setNotificationsOpen}>
           <SidebarGroup>
             <SidebarGroupLabel asChild>
