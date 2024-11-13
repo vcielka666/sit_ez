@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, ChevronDown, Home, Inbox, Search, Settings } from "lucide-react";
+import {ChevronDown, Home, Inbox, Search, Settings } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,

@@ -3,7 +3,6 @@
 import React from "react";
 import AuthButton from "./AuthButton";
 import { FiArrowRight } from "react-icons/fi";
-import Link from "next/link";
 import { Label } from "./ui/label";
 import { loginWithCreds } from "../../actions/auth";
 

@@ -1,12 +1,9 @@
 "use client";
 
 import { FaGoogle } from "react-icons/fa";
-import { signIn } from "next-auth/react"; // Import signIn from next-auth/react
 import { Button } from "@/components/ui/button";
-import { Label } from "./ui/label";
-import  Link  from "next/link"
 import { login } from "../../actions/auth";
-import { FiArrowRight } from "react-icons/fi";
+
 
 const LoginGoogle = () => {
   return (
