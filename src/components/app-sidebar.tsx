@@ -35,10 +35,7 @@ const notificationsItems = [
     title: "Set Happy Hour",
     icon: Inbox,
   },
-  {
-    title: "Search",
-    icon: Search,
-  },
+
 ];
 
 export function AppSidebar({ onSelectLocation }: AppSidebarProps) {

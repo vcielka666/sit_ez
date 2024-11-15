@@ -11,14 +11,15 @@ export async function GET() {
   try {
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
-      include: { places: true }, // Include places associated with the user
+      include: { places: true }, // Include places with IDs associated with the user
     });
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    return NextResponse.json(user.places, { status: 200 }); // Return places as JSON
+    // Return places with IDs so the client can identify each place by `placeId`
+    return NextResponse.json(user.places, { status: 200 });
   } catch (error) {
     console.error("Error fetching places:", error);
     return NextResponse.json({ error: "Error fetching places" }, { status: 500 });
