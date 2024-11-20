@@ -22,6 +22,7 @@ type TableResponse = {
   seats: { seatNumber: number }[];
 };
 
+
 type DashboardProps = {
   selectedLocation: string;
   tablesToDisplay?: TableData[];
@@ -137,7 +138,7 @@ const Dashboard: React.FC<DashboardProps> = ({ selectedLocation, tablesToDisplay
         body: JSON.stringify({
           placeId,
           tableCount: tables,
-          seatsPerTable: seatsNumber, // Pass the correct seats number
+          seatsPerTable: seatsNumber,
         }),
       });
   
@@ -145,11 +146,14 @@ const Dashboard: React.FC<DashboardProps> = ({ selectedLocation, tablesToDisplay
         throw new Error(`Failed to add tables. Status: ${response.status}`);
       }
   
-      const newTables = await response.json();
-      setTablesData((prevTables) => [...prevTables, ...newTables.map((table: any) => ({
+      const newTables: TableResponse[] = await response.json();
+  
+      const updatedTables = newTables.map((table: TableResponse) => ({
         ...table,
-        seats: table.seats || [],
-      }))]);
+        seats: table.seats || [], // Ensure seats is always an array
+      }));
+  
+      setTablesData((prevTables) => [...prevTables, ...updatedTables]);
     } catch (error) {
       console.error("Error adding tables:", error);
     }
