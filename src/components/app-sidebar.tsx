@@ -47,13 +47,21 @@ export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
   useEffect(() => {
     const fetchPlaces = async () => {
       try {
-        const response = await fetch("/api/getPlaces");
+        const response = await fetch("/api/getPlace");
+        console.log("Raw response:", response);
+    
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+    
         const data = await response.json();
+        console.log("Parsed data:", data);
         setPlaces(data);
       } catch (error) {
         console.error("Error fetching places:", error);
       }
     };
+    
 
     fetchPlaces();
   }, []);

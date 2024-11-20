@@ -3,25 +3,24 @@ import { auth } from "../../../../auth";
 import prisma from "../../../lib/prisma";
 
 export async function GET() {
-  const session = await auth();
-  if (!session || !session.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
+    const session = await auth();
+    if (!session || !session.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
-      include: { places: true }, // Include places with IDs associated with the user
+      include: { places: true },
     });
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Return places with IDs so the client can identify each place by `placeId`
     return NextResponse.json(user.places, { status: 200 });
   } catch (error) {
-    console.error("Error fetching places:", error);
-    return NextResponse.json({ error: "Error fetching places" }, { status: 500 });
+    console.error("Error in /api/getPlace:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

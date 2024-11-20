@@ -13,31 +13,57 @@ enum UserRole {
 }
 
 model User {
-  id            String     @id @default(auto()) @map("_id") @db.ObjectId
-  name          String?
-  email         String?    @unique
-  hashedPassword String?
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  role          UserRole?  @default(ADMIN)
-  Authenticator Authenticator[]
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  name            String?
+  email           String?         @unique
+  hashedPassword  String?
+  emailVerified   DateTime?
+  image           String?
+  accounts        Account[]
+  sessions        Session[]
+  role            UserRole?       @default(ADMIN)
+  Authenticator   Authenticator[]
   
-  places        Place[]    @relation("UserPlaces") // Only define the relation name here, no fields or references
+  places          Place[]         @relation("UserPlaces")
   
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 }
 
 model Place {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  userId    String   @db.ObjectId
-  user      User     @relation("UserPlaces", fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String          @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  userId      String          @db.ObjectId
+  user        User            @relation("UserPlaces", fields: [userId], references: [id], onDelete: Cascade)
+  
+  tables      Table[]         @relation("PlaceTables")
+  
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 }
+
+model Table {
+  id          String          @id @default(auto()) @map("_id") @db.ObjectId
+  tableNumber Int
+  placeId     String          @db.ObjectId
+  place       Place           @relation("PlaceTables", fields: [placeId], references: [id], onDelete: Cascade)
+  
+  seats       Seat[]          @relation("TableSeats")
+  
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model Seat {
+  id          String          @id @default(auto()) @map("_id") @db.ObjectId
+  seatNumber  Int
+  tableId     String          @db.ObjectId
+  table       Table           @relation("TableSeats", fields: [tableId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
 
 
 model Account {

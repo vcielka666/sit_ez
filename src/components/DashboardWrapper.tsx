@@ -4,16 +4,25 @@ import { useState } from "react";
 import Dashboard from "@/components/Dashboard";
 import { AppSidebar } from "@/components/app-sidebar";
 
+type SeatData = {
+  seatNumber: number;
+};
+
+type TableData = {
+  id: string;
+  tableNumber: number;
+  seats: SeatData[];
+};
+
 const DashboardWrapper = () => {
   const [selectedLocation, setSelectedLocation] = useState<string>("default");
-  const [tablesToDisplay, setTablesToDisplay] = useState<
-    Array<{ tableNumber: number; seats: number }>
-  >([]);
+  const [tablesToDisplay, setTablesToDisplay] = useState<TableData[]>([]);
 
   const handleSelectLocation = (location: string) => {
     setSelectedLocation(location);
-    // Simulate setting tablesToDisplay based on location, or leave as empty if none exist
-    setTablesToDisplay([]); // Example empty array, adjust as needed
+
+    // Simulate fetching tables for the selected location
+    setTablesToDisplay([]); // Update this with actual fetched data
   };
 
   return (
