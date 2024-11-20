@@ -11,6 +11,17 @@ type TableData = {
   seats: SeatData[];
 };
 
+type Place = {
+  id: string;
+  name: string;
+};
+
+type TableResponse = {
+  id: string;
+  tableNumber: number;
+  seats: { seatNumber: number }[];
+};
+
 type DashboardProps = {
   selectedLocation: string;
   tablesToDisplay?: TableData[];
@@ -26,30 +37,35 @@ const Dashboard: React.FC<DashboardProps> = ({ selectedLocation, tablesToDisplay
   useEffect(() => {
     const fetchTablesAndSeats = async () => {
       if (!selectedLocation || selectedLocation === "default") return;
-
+    
       try {
         const placeResponse = await fetch("/api/getPlace");
         if (!placeResponse.ok) {
           throw new Error(`Failed to fetch places. Status: ${placeResponse.status}`);
         }
-
-        const places = await placeResponse.json();
-        const selectedPlace = places.find((place: any) => place.name === selectedLocation);
-
+    
+        const places: Place[] = await placeResponse.json();
+        const selectedPlace = places.find((place) => place.name === selectedLocation);
+    
         if (!selectedPlace) {
           setTablesData([]);
           return;
         }
-
+    
         setPlaceId(selectedPlace.id);
-
+    
         const tablesResponse = await fetch(`/api/getTables?placeId=${selectedPlace.id}`);
         if (!tablesResponse.ok) {
           throw new Error(`Failed to fetch tables. Status: ${tablesResponse.status}`);
         }
-
-        const tables = await tablesResponse.json();
-        setTablesData(tables.map((table: any) => ({ ...table, seats: table.seats || [] })));
+    
+        const tables: TableResponse[] = await tablesResponse.json();
+        setTablesData(
+          tables.map((table) => ({
+            ...table,
+            seats: table.seats || [],
+          }))
+        );
       } catch (error) {
         console.error("Error fetching tables and seats:", error);
       }
