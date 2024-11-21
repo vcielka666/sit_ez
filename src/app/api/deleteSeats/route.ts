@@ -16,24 +16,24 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
-    const table = await prisma.table.findUnique({
-      where: { id: tableId },
-      include: { seats: true },
-    });
+    const table = await prisma.table.findUnique({ where: { id: tableId } });
 
-    if (!table || table.seats.length === 0) {
-      return NextResponse.json({ error: "No seats to delete" }, { status: 400 });
+    if (!table) {
+      return NextResponse.json({ error: "Table not found" }, { status: 404 });
     }
 
-    const lastSeat = table.seats[table.seats.length - 1];
+    if (table.freeSeats <= 0) {
+      return NextResponse.json({ error: "No free seats to remove" }, { status: 400 });
+    }
 
-    await prisma.seat.delete({
-      where: { id: lastSeat.id },
+    const updatedTable = await prisma.table.update({
+      where: { id: tableId },
+      data: { freeSeats: table.freeSeats - 1 },
     });
 
-    return NextResponse.json({ message: "Seat deleted successfully" }, { status: 200 });
+    return NextResponse.json(updatedTable, { status: 200 });
   } catch (error) {
-    console.error("Error deleting seat:", error);
-    return NextResponse.json({ error: "Error deleting seat" }, { status: 500 });
+    console.error("Error removing free seat:", error);
+    return NextResponse.json({ error: "Error removing free seat" }, { status: 500 });
   }
 }

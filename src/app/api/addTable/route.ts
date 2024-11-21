@@ -21,23 +21,14 @@ export async function POST(request: NextRequest) {
     for (let i = 0; i < tableCount; i++) {
       const newTable = await prisma.table.create({
         data: {
-          tableNumber: i + 1, // Adjust this logic if needed
+          tableNumber: i + 1,
           placeId,
+          totalSeats: seatsPerTable, // Store the total number of seats
+          freeSeats: seatsPerTable, // Initially, all seats are free
         },
       });
 
-      const seats = [];
-      for (let j = 0; j < seatsPerTable; j++) {
-        const seat = await prisma.seat.create({
-          data: {
-            seatNumber: j + 1,
-            tableId: newTable.id,
-          },
-        });
-        seats.push(seat);
-      }
-
-      createdTables.push({ ...newTable, seats });
+      createdTables.push(newTable);
     }
 
     return NextResponse.json(createdTables, { status: 201 });

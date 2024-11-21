@@ -16,25 +16,24 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const table = await prisma.table.findUnique({
-      where: { id: tableId },
-      include: { seats: true },
-    });
+    const table = await prisma.table.findUnique({ where: { id: tableId } });
 
     if (!table) {
       return NextResponse.json({ error: "Table not found" }, { status: 404 });
     }
 
-    const newSeat = await prisma.seat.create({
-      data: {
-        seatNumber: table.seats.length + 1,
-        tableId,
-      },
+    if (table.freeSeats >= table.totalSeats) {
+      return NextResponse.json({ error: "Cannot add more seats than total seats" }, { status: 400 });
+    }
+
+    const updatedTable = await prisma.table.update({
+      where: { id: tableId },
+      data: { freeSeats: table.freeSeats + 1 },
     });
 
-    return NextResponse.json(newSeat, { status: 201 });
+    return NextResponse.json(updatedTable, { status: 200 });
   } catch (error) {
-    console.error("Error adding seat:", error);
-    return NextResponse.json({ error: "Error adding seat" }, { status: 500 });
+    console.error("Error adding free seat:", error);
+    return NextResponse.json({ error: "Error adding free seat" }, { status: 500 });
   }
 }
