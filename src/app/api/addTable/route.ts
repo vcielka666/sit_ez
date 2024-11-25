@@ -17,11 +17,19 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    // Find the highest tableNumber for the given placeId
+    const highestTable = await prisma.table.findFirst({
+      where: { placeId },
+      orderBy: { tableNumber: "desc" }, // Get the highest tableNumber
+    });
+
+    let nextTableNumber = highestTable ? highestTable.tableNumber + 1 : 1;
+
     const createdTables = [];
     for (let i = 0; i < tableCount; i++) {
       const newTable = await prisma.table.create({
         data: {
-          tableNumber: i + 1,
+          tableNumber: nextTableNumber,
           placeId,
           totalSeats: seatsPerTable, // Store the total number of seats
           freeSeats: seatsPerTable, // Initially, all seats are free
@@ -29,6 +37,7 @@ export async function POST(request: NextRequest) {
       });
 
       createdTables.push(newTable);
+      nextTableNumber++; // Increment for the next table
     }
 
     return NextResponse.json(createdTables, { status: 201 });

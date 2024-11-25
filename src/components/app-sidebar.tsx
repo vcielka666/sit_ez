@@ -20,6 +20,8 @@ import { Button } from "./ui/button";
 type Place = {
   id: string;
   name: string;
+  latitude: number;
+  longitude: number;
 };
 
 type AppSidebarProps = {
@@ -43,32 +45,35 @@ export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
   const [isNotificationsOpen, setNotificationsOpen] = useState(false);
   const [newPlaceName, setNewPlaceName] = useState("");
   const [places, setPlaces] = useState<Place[]>([]);
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
 
+  // Fetch places on mount
   useEffect(() => {
     const fetchPlaces = async () => {
       try {
         const response = await fetch("/api/getPlace");
-        console.log("Raw response:", response);
-    
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-    
+
         const data = await response.json();
-        console.log("Parsed data:", data);
         setPlaces(data);
       } catch (error) {
         console.error("Error fetching places:", error);
       }
     };
-    
 
     fetchPlaces();
   }, []);
 
+  // Add new place
   const addNewPlace = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!newPlaceName.trim()) return;
+    if (!newPlaceName.trim() || latitude === null || longitude === null) {
+      console.error("Missing required fields");
+      return;
+    }
 
     try {
       const response = await fetch("/api/addPlace", {
@@ -76,16 +81,20 @@ export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name: newPlaceName }),
+        body: JSON.stringify({ name: newPlaceName, latitude, longitude }),
       });
+
       const newPlace = await response.json();
       setPlaces((prev) => [...prev, newPlace]);
       setNewPlaceName("");
+      setLatitude(null);
+      setLongitude(null);
     } catch (err) {
       console.error("Error adding place:", err);
     }
   };
 
+  // Delete a place
   const deletePlace = async (id: string) => {
     try {
       const response = await fetch(`/api/deletePlace?placeId=${id}`, {
@@ -100,7 +109,6 @@ export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
       console.error("Error deleting place:", error);
     }
   };
-
   return (
     <Sidebar>
       <Image
@@ -147,18 +155,35 @@ export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
                 </SidebarMenu>
 
                 <form className="w-full flex flex-col mt-4" onSubmit={addNewPlace}>
-                  <input
-                    type="text"
-                    name="addNewPlace"
-                    placeholder="Insert name"
-                    value={newPlaceName}
-                    onChange={(e) => setNewPlaceName(e.target.value)}
-                    className="border border-black rounded-sm p-2"
-                  />
-                  <Button type="submit" className="p-2 mt-2 w-fit bg-green-800">
-                    Add New Place
-                  </Button>
-                </form>
+        <input
+          type="text"
+          name="addNewPlace"
+          placeholder="Insert name"
+          value={newPlaceName}
+          onChange={(e) => setNewPlaceName(e.target.value)}
+          className="border border-black rounded-sm p-2"
+        />
+        <input
+          type="number"
+          name="latitude"
+          placeholder="Latitude"
+          value={latitude || ""}
+          onChange={(e) => setLatitude(parseFloat(e.target.value))}
+          className="border border-black rounded-sm p-2 mt-2"
+        />
+        <input
+          type="number"
+          name="longitude"
+          placeholder="Longitude"
+          value={longitude || ""}
+          onChange={(e) => setLongitude(parseFloat(e.target.value))}
+          className="border border-black rounded-sm p-2 mt-2"
+        />
+        <Button type="submit" className="p-2 mt-2 w-fit bg-green-800">
+          Add New Place
+        </Button>
+      </form>
+
               </SidebarGroupContent>
             </CollapsibleContent>
           </SidebarGroup>

@@ -31,15 +31,18 @@ model User {
 }
 
 model Place {
-  id          String          @id @default(auto()) @map("_id") @db.ObjectId
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
-  userId      String          @db.ObjectId
-  user        User            @relation("UserPlaces", fields: [userId], references: [id], onDelete: Cascade)
-  
-  tables      Table[]         @relation("PlaceTables")
-  
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  userId      String   @db.ObjectId
+  user        User     @relation("UserPlaces", fields: [userId], references: [id], onDelete: Cascade)
+
+  latitude    Float?   // Make latitude nullable
+  longitude   Float?   // Make longitude nullable
+
+  tables      Table[]  @relation("PlaceTables")
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Table {

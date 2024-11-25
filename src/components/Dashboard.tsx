@@ -197,8 +197,8 @@ useEffect(() => {
   };
 
   return (
-    <div>
-      <div className="border border-black flex flex-col justify-center gap-4 w-fit p-2 rounded-md">
+    <div className="flex items-center justify-center flex-col gap-4">
+      <div className="w-full max-w-[350px] border border-black flex flex-col justify-center gap-2 p-2 rounded-md">
         <h1 className="text-center font-bold text-xl">Add table and seats</h1>
         <p className="flex justify-between items-center">
           <span className="font-bold text-2xl">{tables}</span>table<span className="text-xs">with</span>{" "}
@@ -231,45 +231,65 @@ useEffect(() => {
       </div>
 
       <main className="flex h-full items-center justify-center flex-col gap-4">
-        <h1 className="text-2xl font-semibold">Dashboard for {selectedLocation}</h1>
+  <h1 className="text-2xl font-semibold">Dashboard for {selectedLocation}</h1>
 
-        {tablesData.length > 0 ? (
-          <div className="flex gap-2 flex-wrap justify-center">
-            {tablesData.map((table) => (
-              <div key={table.id} className="p-4 block border rounded mb-2">
-                <h2>Table {table.tableNumber}</h2>
-                <p className="mb-4">
-                  Free Seats: {table.freeSeats} / {table.totalSeats}
-                </p>
-                <div className="flex gap-2 flex-col">
-                  <div className="flex gap-2">
-                    <Button
-                      className="bg-green-800 hover:bg-green-900"
-                      onClick={() => handleAddSeats(table.id)}
-                    >
-                      + seat
-                    </Button>
-                    <Button
-                      className="bg-red-800 hover:bg-red-900"
-                      onClick={() => handleDeleteSeats(table.id)}
-                    >
-                      - seat
-                    </Button>
-                  </div>
-                  <Button
-                    className="bg-red-600 hover:bg-red-700"
-                    onClick={() => handleDeleteTable(table.id)}
-                  >
-                    Delete Table
-                  </Button>
-                </div>
+  {tablesData.length > 0 ? (
+    <div className="flex gap-2 flex-wrap justify-center">
+      {tablesData.map((table) => {
+        // Determine border color based on the free seats
+        const borderColor =
+          table.freeSeats === table.totalSeats
+            ? "border-green-500" // All seats free
+            : table.freeSeats === 0
+            ? "border-red-500" // No free seats
+            : "border-orange-500"; // Some seats are free
+
+        const fullyOcuppied = table.freeSeats === 0;
+        const fullyFree = table.freeSeats === table.totalSeats;
+        return (
+          <div
+            key={table.id}
+            className={`p-4 block border ${borderColor} rounded mb-2 relative`}
+          >
+            {/* Delete button styled as an "X" in the corner */}
+            <Button
+              className="bg-red-600 hover:bg-red-700 w-fit h-fit rounded p-1 absolute top-0 right-0"
+              onClick={() => handleDeleteTable(table.id)}
+            >
+              X
+            </Button>
+            <h2 className="mt-3">
+              Table {table.tableNumber} with <span>{table.totalSeats} seats.</span>
+            </h2>
+            <p className="mb-4">Free Seats: {table.freeSeats}</p>
+            <div className="flex gap-2 flex-col">
+              <div className="flex gap-2">
+                <Button
+                  className="bg-green-800 hover:bg-green-900"
+                  onClick={() => handleAddSeats(table.id)}
+                >
+                  + seat
+                </Button>
+                <Button
+                  className="bg-red-800 hover:bg-red-900"
+                  onClick={() => handleDeleteSeats(table.id)}
+                >
+                  - seat
+                </Button>
               </div>
-            ))}
+              {fullyOcuppied && <p className="text-red-700 text-xs">This table is fully occupied</p>}
+              {fullyFree && <p className="text-green-700 text-xs">This table is completely FREE </p>}
+            </div>
           </div>
-        ) : (
-          <p className="text-gray-500">Tables and seats are not added yet!</p>
-        )}
-      </main>
+        );
+      })}
+    </div>
+  ) : (
+    <p className="text-gray-500">Tables and seats are not added yet!</p>
+  )}
+</main>
+
+
     </div>
   );
 };

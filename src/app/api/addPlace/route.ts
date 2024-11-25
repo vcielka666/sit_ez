@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
   }
 
   const data = await request.json();
-  const { name } = data;
+  const { name, latitude, longitude } = data;
 
   try {
     // Find the user by email to get the user ID
@@ -26,6 +26,8 @@ export async function POST(request: NextRequest) {
     const newPlace = await prisma.place.create({
       data: {
         name,
+        latitude,
+        longitude,
         userId: user.id,
       },
     });
