@@ -1,36 +1,19 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { SessionProvider } from "next-auth/react";
-import { auth } from "../../auth";
-import Navbar from "@/components/Navbar";
-
-
 
 export const metadata: Metadata = {
   title: "SitEz",
-  description: "Watchdog app for your free seats, tables and reservations in your favourite places",
+  description: "Discover free seats and tables in your favorite places",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  const session = await auth();
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <SessionProvider session={session}>
     <html lang="en">
-      <body >
-      <Navbar />
-        <SidebarProvider>
-          <main className="w-full h-full">
-            <SidebarTrigger />
-            {children}
-          </main>
-        </SidebarProvider>
+      <body>
+        <main className="w-full h-full">{children}</main>
       </body>
     </html>
-    </SessionProvider>
   );
 }

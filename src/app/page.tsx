@@ -1,29 +1,12 @@
-import SignIn from "./sign-in/page";
-import { auth } from "../../auth";
-import Page from "./adminDashboard/page";
-import SignUpForm from "@/components/SignInForm";
+import React from "react";
 
-export default async function Home() {
-  
-const session = await auth();
-console.log(session); 
+export default function UserPage() {
   return (
-    <div>
-      {!session? (
-        <div className="flex justify-center items-center flex-col m-2 w-full">
-      <SignUpForm/>
-      <SignIn />
-
+    <div className="p-4">
+      <h1>Discover Pubs and Restaurants</h1>
+      <div id="map">
+        {/* Your Google Map integration */}
       </div>
-      )
-      :(
-        <div>
-      <Page/>
-      
-      </div>
-      )
-} 
-    
     </div>
-  )
+  );
 }

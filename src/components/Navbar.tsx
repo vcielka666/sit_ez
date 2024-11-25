@@ -8,7 +8,7 @@ const Navbar = async () => {
   return (
     <>
       {session ? (
-        <nav className="border-b bg-background w-full flex justify-center items-center">
+        <nav className="border-b bg-background w-full h-fit flex justify-center items-center">
           <div className="flex flex-shrink m-2">
             <p className="m-1">
               <span className="font-bold">Admin:</span> {session?.user?.name} {session?.user?.email}
