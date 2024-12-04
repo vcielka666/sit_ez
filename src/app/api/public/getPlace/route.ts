@@ -11,30 +11,38 @@ export async function GET() {
         longitude: true,
         tables: {
           select: {
+            id: true,
+            tableNumber: true,
             freeSeats: true,
+            totalSeats: true,
+            seats: true, // Include seats for detailed checking
           },
         },
       },
     });
 
-    // Add logic to calculate total free seats and tables
-    const placesWithFreeSeats = places.map((place) => {
-      const totalFreeSeats = place.tables.reduce((sum, table) => sum + table.freeSeats, 0);
-      const totalTables = place.tables.length;
+    // Filter tables to include only those with all seats free
+    const placesWithFilteredTables = places.map((place) => {
+      const fullyFreeTables = place.tables.filter(
+        (table) => table.freeSeats === table.totalSeats
+      );
 
       return {
         id: place.id,
         name: place.name,
         latitude: place.latitude,
         longitude: place.longitude,
-        totalFreeSeats,
-        totalTables,
+        freeTables: fullyFreeTables.map((table) => ({
+          id: table.id,
+          tableNumber: table.tableNumber,
+          totalSeats: table.totalSeats,
+        })), // Return only the needed table data
       };
     });
 
-    return NextResponse.json(placesWithFreeSeats, { status: 200 });
+    return NextResponse.json(placesWithFilteredTables, { status: 200 });
   } catch (error: any) {
-    console.error("Error in /api/public/getPlaces:", error.message || error);
+    console.error("Error in /api/public/getPlace:", error.message || error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

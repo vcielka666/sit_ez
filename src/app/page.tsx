@@ -4,11 +4,10 @@ import Map from "@/components/map/Map"; // Assuming `Map` component is inside `c
 
 export default function UserPage() {
   return (
-    <div className="p-4">
-      <h1 className="text-xl font-semibold">Discover Pubs and Restaurants</h1>
-      <div id="map" className="mt-4 h-[500px]">
+    
+      <div id="map" className="px-1 h-[500px]">
         <Map onMarkerClick={() => {}} /> {/* No-op callback */}
       </div>
-    </div>
+    
   );
 }
