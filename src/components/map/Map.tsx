@@ -1,26 +1,38 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Button, buttonVariants } from "../ui/button";
+import { FaSearch } from "react-icons/fa";
+import { usePlaces } from "@/hooks/usePlaces";
+import Cookies  from "js-cookie";
 
-interface MapProps {
-  onMarkerClick: (place: any) => void; // Callback when a marker is clicked
+interface Place {
+  id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  freeTables: {
+    id: string;
+    totalSeats: number;
+  }[];
 }
 
-const Map: React.FC<MapProps> = ({ onMarkerClick }) => {
+
+const Map: React.FC<{ onMarkerClick: (place: Place) => void }> = ({ onMarkerClick }) => {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const [defaultPosition] = useState({ lat: 50.0755, lng: 14.4378 }); // Prague
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
-  const [places, setPlaces] = useState<any[]>([]); // Store all fetched places
-  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null); // Map instance
-  const [searchQuery, setSearchQuery] = useState<string>(""); // Search input state
+  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
+  const { data: places, isLoading, isError } = usePlaces(); // Fetch places using React Query
 
   useEffect(() => {
-    const initMap = async (position: { lat: number; lng: number }) => {
+    const initMap = (position: { lat: number; lng: number }) => {
       if (typeof google === "undefined" || !mapRef.current) {
         console.error("Google Maps API is not loaded or mapRef is null");
         return;
       }
-
+  
       const map = new google.maps.Map(mapRef.current, {
         center: position,
         zoom: 12,
@@ -30,52 +42,42 @@ const Map: React.FC<MapProps> = ({ onMarkerClick }) => {
         zoomControl: false,
         gestureHandling: "greedy",
       });
-
-      setMapInstance(map); // Store map instance
-
-      try {
-        const response = await fetch("/api/public/getPlace");
-        if (!response.ok) {
-          console.warn("Failed to fetch places. Status:", response.status);
-          return;
-        }
-
-        const fetchedPlaces = await response.json();
-        setPlaces(fetchedPlaces); // Store all places
-
-        if (!fetchedPlaces || fetchedPlaces.length === 0) {
-          console.warn("No places available to display markers.");
-          return;
-        }
-
-        fetchedPlaces.forEach((place: any) => {
-          if (place.latitude && place.longitude) {
-            const marker = new google.maps.Marker({
-              position: { lat: place.latitude, lng: place.longitude },
-              map,
-              title: `${place.name} - Free Tables: ${place.freeTables.length}`,
-              icon: {
-                url: "/marker.png",
-                scaledSize: new google.maps.Size(40, 40),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(20, 20),
-              },
-            });
-
-            marker.addListener("click", () => {
-              setSelectedPlace(place);
-              onMarkerClick(place);
-            });
-          } else {
-            console.warn(`Place ${place.name} is missing latitude or longitude.`);
-          }
-        });
-      } catch (error) {
-        console.error("Error fetching places:", error);
+  
+      setMapInstance(map);
+  
+      if (!places || isLoading || isError) {
+        console.warn("Loading map data or no places available.");
+        return;
       }
+  
+      // Add markers for places
+      places.forEach((place: Place) => {
+  
+        if (place.latitude && place.longitude) {
+          const marker = new google.maps.Marker({
+            position: { lat: place.latitude, lng: place.longitude },
+            map,
+            title: `${place.name} - Free Tables: ${place.freeTables.length}`,
+            icon: {
+              url: "/marker.png",
+              scaledSize: new google.maps.Size(40, 40),
+              origin: new google.maps.Point(0, 0),
+              anchor: new google.maps.Point(20, 20),
+            },
+          });
+  
+          marker.addListener("click", () => {
+            setSelectedPlace(place);
+            onMarkerClick(place);
+          });
+        }
+      });
     };
-
-    if (navigator.geolocation) {
+  
+    const geolocationAllowed = Cookies.get("geolocationAllowed");
+  
+    if (geolocationAllowed === "true") {
+      // If geolocation was previously allowed, skip asking for permission
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const userPosition = {
@@ -85,18 +87,37 @@ const Map: React.FC<MapProps> = ({ onMarkerClick }) => {
           initMap(userPosition);
         },
         () => {
-          console.warn("User denied geolocation or it failed. Using default position.");
+          console.warn("Geolocation failed. Using default position.");
           initMap(defaultPosition);
         }
       );
     } else {
-      console.warn("Geolocation is not supported by this browser. Using default position.");
-      initMap(defaultPosition);
+      // Ask for geolocation permission
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userPosition = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
+          Cookies.set("geolocationAllowed", "true", {
+            expires: 7,
+            secure: true,
+            sameSite: "strict",
+          }); // Set cookie for 7 days
+          initMap(userPosition);
+        },
+        () => {
+          
+          alert("Unable to fetch your location. Please allow location access in your browser.");
+          initMap(defaultPosition);
+        }
+      );
     }
-  }, [onMarkerClick, defaultPosition]);
+  }, [places, isLoading, isError]); // Dependencies
+  
 
   const handleSearch = () => {
-    if (!mapInstance || !places.length || !searchQuery.trim()) return;
+    if (!mapInstance || !places?.length || !searchQuery.trim()) return;
 
     const foundPlace = places.find((place) =>
       place.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -110,11 +131,18 @@ const Map: React.FC<MapProps> = ({ onMarkerClick }) => {
     }
   };
 
+  const searchOnKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
   return (
     <div className="w-full h-full relative">
       {/* Search Bar */}
       <div className="absolute top-0 left-1/2 transform -translate-x-1/2 bg-white p-1 shadow flex items-center z-10 w-full">
         <input
+          onKeyDown={searchOnKeyDown}
           type="text"
           placeholder="Search for a pub..."
           value={searchQuery}
@@ -123,10 +151,9 @@ const Map: React.FC<MapProps> = ({ onMarkerClick }) => {
         />
         <Button
           onClick={handleSearch}
-          className={`${buttonVariants({ variant: "default" })} bg-blue-500 text-white px-4 py-2 rounded-r`}
-
+          className={`${buttonVariants({ variant: "default" })} bg-[#52208b] text-white px-4 py-2 rounded-r flex items-center gap-2`}
         >
-          Search
+          <FaSearch />
         </Button>
       </div>
 
