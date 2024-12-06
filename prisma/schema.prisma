@@ -2,7 +2,7 @@ datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
- 
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,63 +13,62 @@ enum UserRole {
 }
 
 model User {
-  id              String          @id @default(auto()) @map("_id") @db.ObjectId
-  name            String?
-  email           String?         @unique
-  hashedPassword  String?
-  emailVerified   DateTime?
-  image           String?
-  accounts        Account[]
-  sessions        Session[]
-  role            UserRole?       @default(ADMIN)
-  Authenticator   Authenticator[]
-  
-  places          Place[]         @relation("UserPlaces")
-  
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
+  name           String?
+  email          String?         @unique
+  hashedPassword String?
+  emailVerified  DateTime?
+  image          String?
+  accounts       Account[]
+  sessions       Session[]
+  role           UserRole?       @default(ADMIN)
+  Authenticator  Authenticator[]
+
+  places Place[] @relation("UserPlaces")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Place {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
+  description String? // Optional short text about the place
+  pictureUrls String[] @default([]) // Default to an empty array
   userId      String   @db.ObjectId
   user        User     @relation("UserPlaces", fields: [userId], references: [id], onDelete: Cascade)
 
-  latitude    Float?   // Make latitude nullable
-  longitude   Float?   // Make longitude nullable
+  latitude  Float? // Make latitude nullable
+  longitude Float? // Make longitude nullable
 
-  tables      Table[]  @relation("PlaceTables")
+  tables Table[] @relation("PlaceTables")
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Table {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
   tableNumber Int
-  placeId     String   @db.ObjectId
-  place       Place    @relation("PlaceTables", fields: [placeId], references: [id], onDelete: Cascade)
-  seats       Seat[]   @relation("TableSeats")
-  totalSeats  Int      // New field for total seats
-  freeSeats   Int      @default(0) // Tracks the number of free seats
+  placeId     String @db.ObjectId
+  place       Place  @relation("PlaceTables", fields: [placeId], references: [id], onDelete: Cascade)
+  seats       Seat[] @relation("TableSeats")
+  totalSeats  Int // New field for total seats
+  freeSeats   Int    @default(0) // Tracks the number of free seats
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
-
 
 model Seat {
-  id          String          @id @default(auto()) @map("_id") @db.ObjectId
-  seatNumber  Int
-  tableId     String          @db.ObjectId
-  table       Table           @relation("TableSeats", fields: [tableId], references: [id], onDelete: Cascade)
-  
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  seatNumber Int
+  tableId    String @db.ObjectId
+  table      Table  @relation("TableSeats", fields: [tableId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
-
-
 
 model Account {
   id                String  @id @default(auto()) @map("_id") @db.ObjectId

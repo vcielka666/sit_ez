@@ -14,6 +14,7 @@ const ClosestPlaces = () => {
   const [userPosition, setUserPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [closestPlaces, setClosestPlaces] = useState<Place[]>([]);
   const { data: places, isLoading, isError } = usePlaces();
+  const [filter, setFilter] = useState<{ seats?: number } | null>(null);
 
   // Fetch user's current location
   useEffect(() => {

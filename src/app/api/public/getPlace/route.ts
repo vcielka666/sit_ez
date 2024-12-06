@@ -3,26 +3,28 @@ import prisma from "../../../../lib/prisma";
 
 export async function GET() {
   try {
-    const places = await prisma.place.findMany({
+    const place = await prisma.place.findMany({
       select: {
         id: true,
         name: true,
         latitude: true,
         longitude: true,
+        description: true, // Include description
+        pictureUrls: true, // Updated to fetch `pictureUrls` (array)
         tables: {
           select: {
             id: true,
             tableNumber: true,
             freeSeats: true,
             totalSeats: true,
-            seats: true, // Include seats for detailed checking
+            seats: true,
           },
         },
       },
     });
 
     // Filter tables to include only those with all seats free
-    const placesWithFilteredTables = places.map((place) => {
+    const placesWithFilteredTables = place.map((place) => {
       const fullyFreeTables = place.tables.filter(
         (table) => table.freeSeats === table.totalSeats
       );
@@ -32,11 +34,13 @@ export async function GET() {
         name: place.name,
         latitude: place.latitude,
         longitude: place.longitude,
+        description: place.description, // Include description
+        pictureUrls: place.pictureUrls, // Updated to return the array of picture URLs
         freeTables: fullyFreeTables.map((table) => ({
           id: table.id,
           tableNumber: table.tableNumber,
           totalSeats: table.totalSeats,
-        })), // Return only the needed table data
+        })),
       };
     });
 

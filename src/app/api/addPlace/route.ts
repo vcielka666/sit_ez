@@ -1,5 +1,4 @@
 // src/app/api/addPlace/route.ts
-
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "../../../../auth";
 import prisma from "../../../lib/prisma";
@@ -11,10 +10,9 @@ export async function POST(request: NextRequest) {
   }
 
   const data = await request.json();
-  const { name, latitude, longitude } = data;
+  const { name, latitude, longitude, description, pictureUrls } = data; // Accept `pictureUrls` as an array
 
   try {
-    // Find the user by email to get the user ID
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
     });
@@ -28,6 +26,8 @@ export async function POST(request: NextRequest) {
         name,
         latitude,
         longitude,
+        description,
+        pictureUrls: pictureUrls || [], // Default to an empty array if not provided
         userId: user.id,
       },
     });

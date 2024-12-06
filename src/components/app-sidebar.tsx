@@ -1,6 +1,6 @@
 "use client";
 
-import {ChevronDown, Home, Inbox, Settings } from "lucide-react";
+import { ChevronDown, Home, Inbox, Settings } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -17,18 +17,26 @@ import Image from "next/image";
 import Logout from "./Logout";
 import { Button } from "./ui/button";
 
+
 type Place = {
   id: string;
   name: string;
   latitude: number;
   longitude: number;
+  description?: string;
+  pictureUrl?: string;
 };
 
 type AppSidebarProps = {
   onSelectLocation: (location: string) => void;
 };
 
-const notificationsItems = [
+type NotificationItem = {
+  title: string;
+  icon: React.ComponentType;
+};
+
+const notificationsItems: NotificationItem[] = [
   {
     title: "Create Notification",
     icon: Settings,
@@ -37,7 +45,6 @@ const notificationsItems = [
     title: "Set Happy Hour",
     icon: Inbox,
   },
-
 ];
 
 export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
@@ -47,6 +54,8 @@ export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
   const [places, setPlaces] = useState<Place[]>([]);
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
+  const [description, setDescription] = useState("");
+  const [pictures, setPictures] = useState<File[]>([]);
 
   // Fetch places on mount
   useEffect(() => {
@@ -68,31 +77,71 @@ export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
   }, []);
 
   // Add new place
-  const addNewPlace = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!newPlaceName.trim() || latitude === null || longitude === null) {
-      console.error("Missing required fields");
+  
+const handlePictureUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  if (e.target.files) {
+    setPictures(Array.from(e.target.files)); // Convert FileList to an array
+  }
+};
+
+const addNewPlace = async (event: React.FormEvent<HTMLFormElement>) => {
+  event.preventDefault();
+  if (!newPlaceName.trim() || latitude === null || longitude === null) {
+    console.error("Missing required fields");
+    return;
+  }
+
+  let pictureUrls: string[] = []; // Initialize an array for URLs
+  if (pictures.length > 0) {
+    try {
+      for (const picture of pictures) {
+        const formData = new FormData();
+        formData.append("file", picture);
+        formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!);
+        
+        const res = await fetch(
+          `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        const result = await res.json();
+        pictureUrls.push(result.secure_url); // Add the URL to the array
+      }
+    } catch (err) {
+      console.error("Error uploading pictures:", err);
       return;
     }
+  }
 
-    try {
-      const response = await fetch("/api/addPlace", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name: newPlaceName, latitude, longitude }),
-      });
+  try {
+    const response = await fetch("/api/addPlace", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: newPlaceName,
+        latitude,
+        longitude,
+        description,
+        pictureUrls, // Send the array of image URLs
+      }),
+    });
 
-      const newPlace = await response.json();
-      setPlaces((prev) => [...prev, newPlace]);
-      setNewPlaceName("");
-      setLatitude(null);
-      setLongitude(null);
-    } catch (err) {
-      console.error("Error adding place:", err);
-    }
-  };
+    const newPlace = await response.json();
+    setPlaces((prev) => [...prev, newPlace]);
+    setNewPlaceName("");
+    setLatitude(null);
+    setLongitude(null);
+    setDescription("");
+    setPictures([]); // Reset pictures
+  } catch (err) {
+    console.error("Error adding place:", err);
+  }
+};
 
   // Delete a place
   const deletePlace = async (id: string) => {
@@ -109,6 +158,8 @@ export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
       console.error("Error deleting place:", error);
     }
   };
+
+
   return (
     <Sidebar>
       <Image
@@ -154,41 +205,65 @@ export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
                   ))}
                 </SidebarMenu>
 
+                {/* Add Place Form */}
+                <div className="my-2 border border-black w-full"></div>
+                <h1 className="text-lg font-bold mb-2 text-center">Add new place</h1>
                 <form className="w-full flex flex-col mt-4" onSubmit={addNewPlace}>
-        <input
-          type="text"
-          name="addNewPlace"
-          placeholder="Insert name"
-          value={newPlaceName}
-          onChange={(e) => setNewPlaceName(e.target.value)}
-          className="border border-black rounded-sm p-2"
-        />
-        <input
-          type="number"
-          name="latitude"
-          placeholder="Latitude"
-          value={latitude || ""}
-          onChange={(e) => setLatitude(parseFloat(e.target.value))}
-          className="border border-black rounded-sm p-2 mt-2"
-        />
-        <input
-          type="number"
-          name="longitude"
-          placeholder="Longitude"
-          value={longitude || ""}
-          onChange={(e) => setLongitude(parseFloat(e.target.value))}
-          className="border border-black rounded-sm p-2 mt-2"
-        />
-        <Button type="submit" className="p-2 mt-2 w-fit bg-green-800">
-          Add New Place
-        </Button>
-      </form>
+                <label htmlFor="description">Add name and GPS coordinates</label>
+                  <input
+                    type="text"
+                    name="addNewPlace"
+                    placeholder="Insert name"
+                    value={newPlaceName}
+                    onChange={(e) => setNewPlaceName(e.target.value)}
+                    className="border border-black rounded-sm p-2"
+                  />
+                  <input
+                    type="number"
+                    name="latitude"
+                    placeholder="Latitude"
+                    value={latitude || ""}
+                    onChange={(e) => setLatitude(parseFloat(e.target.value))}
+                    className="border border-black rounded-sm p-2 mt-2"
+                  />
+                  <input
+                    type="number"
+                    name="longitude"
+                    placeholder="Longitude"
+                    value={longitude || ""}
+                    onChange={(e) => setLongitude(parseFloat(e.target.value))}
+                    className="border border-black rounded-sm p-2 mt-2"
+                  />
 
+                  <label className="my-2" htmlFor="description">Description</label>
+                  <textarea
+                    id="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="border p-2 rounded"
+                    placeholder="Short description about the place"
+                  />
+
+                  <label className="my-2" htmlFor="picture">Picture</label>
+                  <input
+  type="file"
+  id="pictures"
+  multiple // Allow multiple file selection
+  onChange={handlePictureUpload}
+  accept="image/*"
+  className="border p-2 rounded"
+/>
+
+
+                  <Button type="submit" className="p-2 mt-2 w-fit bg-green-800">
+                    Add New Place
+                  </Button>
+                </form>
               </SidebarGroupContent>
             </CollapsibleContent>
           </SidebarGroup>
         </Collapsible>
-
+        {/* Notifications & Happy Hours */}
         <Collapsible open={isNotificationsOpen} onOpenChange={setNotificationsOpen}>
           <SidebarGroup>
             <SidebarGroupLabel asChild>
@@ -200,16 +275,17 @@ export function AppSidebar({ onSelectLocation }: AppSidebarProps) {
             <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {notificationsItems.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild>
-                        <button className="flex items-center gap-2">
-                          <item.icon />
-                          <span>{item.title}</span>
-                        </button>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
+                {notificationsItems.map((item: NotificationItem) => (
+  <SidebarMenuItem key={item.title}>
+    <SidebarMenuButton asChild>
+      <button className="flex items-center gap-2">
+        <item.icon />
+        <span>{item.title}</span>
+      </button>
+    </SidebarMenuButton>
+  </SidebarMenuItem>
+))}
+
                 </SidebarMenu>
               </SidebarGroupContent>
             </CollapsibleContent>

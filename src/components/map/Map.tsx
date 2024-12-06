@@ -4,6 +4,11 @@ import { Button, buttonVariants } from "../ui/button";
 import { FaSearch } from "react-icons/fa";
 import { usePlaces } from "@/hooks/usePlaces";
 import Cookies  from "js-cookie";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../ui/carousel";
+import {
+  Card,
+  CardContent,
+} from "@/components/ui/card";
 
 interface Place {
   id: string;
@@ -160,26 +165,59 @@ const Map: React.FC<{ onMarkerClick: (place: Place) => void }> = ({ onMarkerClic
       {/* Google Map */}
       <div ref={mapRef} className="w-full h-full"></div>
 
-      {/* Selected Place Modal */}
-      {selectedPlace && (
-        <div className="absolute bottom-10 left-10 bg-white p-4 rounded shadow max-w-sm">
-          <h2 className="text-lg font-bold">{selectedPlace.name}</h2>
-          <p>Total Free Tables: {selectedPlace.freeTables.length}</p>
-          <ul>
-            {selectedPlace.freeTables.map((table: any) => (
-              <li key={table.id}>
-                Table {table.tableNumber} ({table.totalSeats} seats)
-              </li>
-            ))}
-          </ul>
-          <button
-            onClick={() => setSelectedPlace(null)}
-            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-          >
-            Close
-          </button>
-        </div>
-      )}
+     {/* Selected Place Modal */}
+{selectedPlace && (
+  <div className="absolute bottom-10 left-10 bg-white p-4 rounded shadow max-w-sm">
+    <h2 className="text-lg font-bold">{selectedPlace.name}</h2>
+    
+    {selectedPlace.description && (
+      <p className="text-gray-700 mb-2">{selectedPlace.description}</p>
+    )}
+
+
+{selectedPlace.pictureUrls && selectedPlace.pictureUrls.length > 0 && (
+  <Carousel className="w-full max-w-sm">
+    <CarouselContent className="-ml-1">
+      {selectedPlace.pictureUrls.map((url: string, index: number) => (
+        <CarouselItem key={index} className="pl-1 md:basis-1/2 lg:basis-1/3">
+          <div className="p-1">
+            <Card>
+              <CardContent className="flex aspect-square items-center justify-center">
+                <img
+                  src={url}
+                  alt={`Image ${index + 1} of ${selectedPlace.name}`}
+                  className="w-full h-full "
+                />
+              </CardContent>
+            </Card>
+          </div>
+        </CarouselItem>
+      ))}
+    </CarouselContent>
+ 
+  </Carousel>
+)}
+
+   
+
+    <p>Total Free Tables: {selectedPlace.freeTables.length}</p>
+    <ul>
+      {selectedPlace.freeTables.map((table: any) => (
+        <li key={table.id}>
+          Table {table.tableNumber} ({table.totalSeats} seats)
+        </li>
+      ))}
+    </ul>
+
+    <button
+      onClick={() => setSelectedPlace(null)}
+      className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+    >
+      Close
+    </button>
+  </div>
+)}
+
     </div>
   );
 };
