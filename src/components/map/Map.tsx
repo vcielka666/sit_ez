@@ -4,7 +4,7 @@ import { Button, buttonVariants } from "../ui/button";
 import { FaSearch } from "react-icons/fa";
 import { usePlaces } from "@/hooks/usePlaces";
 import Cookies  from "js-cookie";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../ui/carousel";
+import { Carousel, CarouselContent, CarouselItem } from "../ui/carousel";
 import {
   Card,
   CardContent,

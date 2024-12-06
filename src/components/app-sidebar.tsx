@@ -91,7 +91,8 @@ const addNewPlace = async (event: React.FormEvent<HTMLFormElement>) => {
     return;
   }
 
-  let pictureUrls: string[] = []; // Initialize an array for URLs
+  const pictureUrls: string[] = [];
+
   if (pictures.length > 0) {
     try {
       for (const picture of pictures) {
@@ -108,7 +109,7 @@ const addNewPlace = async (event: React.FormEvent<HTMLFormElement>) => {
         );
 
         const result = await res.json();
-        pictureUrls.push(result.secure_url); // Add the URL to the array
+        pictureUrls.push(result.secure_url); 
       }
     } catch (err) {
       console.error("Error uploading pictures:", err);
