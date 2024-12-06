@@ -157,17 +157,27 @@ const CarouselContent = React.forwardRef<
   const { carouselRef, orientation } = useCarousel()
 
   return (
-    <div ref={carouselRef} className="overflow-hidden">
-      <div
-        ref={ref}
-        className={cn(
-          "flex",
-          orientation === "horizontal" ? "-ml-4" : "-mt-4 flex-col",
-          className
-        )}
-        {...props}
-      />
-    </div>
+    <div
+  ref={carouselRef}
+  className={cn(
+    "overflow-hidden",           // Prevent scrolling beyond bounds
+    "w-full",                    // Ensure it takes full width by default
+    "max-w-[140px] sm:max-w-[220px] md:max-w-lg lg:max-w-xxl", // Adjust max width for different breakpoints
+    "px-2 md:px-4 lg:px-6",      // Add responsive horizontal padding
+    "h-auto"                     // Let height adjust automatically
+  )}
+> 
+  <div
+    ref={ref}
+    className={cn(
+      "flex",
+      orientation === "horizontal" ? "-ml-4" : "-mt-4 flex-col",
+      className
+    )}
+    {...props}
+  />
+</div>
+
   )
 })
 CarouselContent.displayName = "CarouselContent"
