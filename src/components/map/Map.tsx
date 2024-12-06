@@ -22,7 +22,10 @@ interface Place {
 }
 
 
-const Map: React.FC<{ onMarkerClick: (place: Place) => void }> = ({ onMarkerClick }) => {
+const Map: React.FC<{ onMarkerClick: (place: Place) => void; onMoreDetailsClick: (place: any) => void }> = ({
+  onMarkerClick,
+  onMoreDetailsClick,
+}) => {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const [defaultPosition] = useState({ lat: 50.0755, lng: 14.4378 }); // Prague
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
@@ -145,21 +148,22 @@ const Map: React.FC<{ onMarkerClick: (place: Place) => void }> = ({ onMarkerClic
   return (
     <div className="w-full h-full relative">
       {/* Search Bar */}
-      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 bg-white p-1 shadow flex items-center z-10 w-full">
+      <div className="absolute left-1/2 transform -translate-x-1/2 bg-white lg:pt-1 shadow flex items-center rounded z-10 lg:rounded-none lg:w-full lg:top-0 w-3/5 top-5 ">
+      <Button
+          onClick={handleSearch}
+          className={`${buttonVariants({ variant: "default" })} bg-[#52208b] mr-1 text-white px-4 py-2 rounded-[6px] flex items-center`}
+        >
+          <FaSearch />
+        </Button>
         <input
           onKeyDown={searchOnKeyDown}
           type="text"
-          placeholder="Search for a pub..."
+          placeholder="Search joints..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full bg-transparent text-gray-800 outline-none"
         />
-        <Button
-          onClick={handleSearch}
-          className={`${buttonVariants({ variant: "default" })} bg-[#52208b] text-white px-4 py-2 rounded-r flex items-center gap-2`}
-        >
-          <FaSearch />
-        </Button>
+       
       </div>
 
       {/* Google Map */}
@@ -211,10 +215,17 @@ const Map: React.FC<{ onMarkerClick: (place: Place) => void }> = ({ onMarkerClic
 
     <button
       onClick={() => setSelectedPlace(null)}
-      className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+      className="mt-4 mr-2 bg-red-500 text-white px-4 py-2 rounded"
     >
-      Close
+     X
     </button>
+    <button
+          onClick={() => onMoreDetailsClick(selectedPlace)} // Trigger navigation to details screen
+          className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          More Details
+        </button>
+
   </div>
 )}
 
