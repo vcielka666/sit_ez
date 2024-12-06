@@ -9,7 +9,7 @@ export default function UserPage() {
   const [selectedPlace, setSelectedPlace] = useState<any>(null); // Track selected place
 
   const goToDetails = (place: any) => {
-    setSelectedPlace(place);
+    setSelectedPlace(place); // Pass full place object, including `distance`
     setCurrentScreen("details");
   };
 
@@ -26,8 +26,8 @@ export default function UserPage() {
         } bg-gray-100`}
       >
         <div id="map" className="px-1 h-[600px]">
-        <Map onMarkerClick={() => {}} onMoreDetailsClick={goToDetails} />
-          <ClosestPlaces />
+          <Map onMarkerClick={() => {}} onMoreDetailsClick={goToDetails} />
+          <ClosestPlaces onMoreDetailsClick={goToDetails} /> {/* Pass `goToDetails` */}
         </div>
       </div>
 

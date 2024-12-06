@@ -7,7 +7,7 @@ import { FaMapMarkerAlt } from "react-icons/fa";
 
 
 const MoreDetailsComponent = ({ place, onBack }: { place: any; onBack: () => void }) => {
-  if (!place) return null; // Ensure place exists before rendering
+  if (!place) return null;
 
   return (
     <div className="flex flex-col w-full h-full bg-white">
@@ -15,7 +15,7 @@ const MoreDetailsComponent = ({ place, onBack }: { place: any; onBack: () => voi
       {place.pictureUrls && place.pictureUrls.length > 0 && (
         <div className="w-full h-64">
           <img
-            src={place.pictureUrls[0]}
+            src={place.pictureUrls[2]}
             alt={`Image of ${place.name}`}
             className="object-cover w-full h-full"
           />
@@ -33,13 +33,14 @@ const MoreDetailsComponent = ({ place, onBack }: { place: any; onBack: () => voi
       <FaStarHalfAlt />
       <FaRegStar />
     </span>
-    <span className="ml-2 text-gray-600">(4.5)</span>
+    <span className="ml-2 text-gray-600">(3.5)</span>
     
-    <div className="text-lg font-semibold ml-20 inline-flex items-center">
-      <FaMapMarkerAlt className="text-gray-500 mr-2" />
-      <span className="text-gray-600">
-      1.2 km
-        </span></div>
+    <div className="text-lg font-semibold flex items-center">
+            <FaMapMarkerAlt className="text-gray-500 mr-2" />
+            <span className="text-gray-600">
+              {place.distance ? `${place.distance.toFixed(2)} km` : "Distance not available"}
+            </span>
+          </div>
   </div>
   <div className="mt-4 space-y-2">
   <p className="text-lg font-semibold flex items-center">
