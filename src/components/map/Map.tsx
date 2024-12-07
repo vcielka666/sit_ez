@@ -3,7 +3,6 @@ import React, { useRef, useState, useEffect } from "react";
 import { Button, buttonVariants } from "../ui/button";
 import { FaSearch } from "react-icons/fa";
 import { usePlaces } from "@/hooks/usePlaces";
-import Cookies from "js-cookie";
 import { Carousel, CarouselContent, CarouselItem } from "../ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
 import { calculateDistance } from "../../../utils/geolocation";
@@ -62,21 +61,23 @@ const Map: React.FC<{
   const markersRef = useRef<google.maps.Marker[]>([]);
   
   useEffect(() => {
-    if (!mapInstance || !userPosition || !filteredPlaces) return;
+    if (!mapInstance || !filteredPlaces) return;
   
     // Clear existing markers
     markersRef.current.forEach((marker) => marker.setMap(null));
     markersRef.current = [];
   
-    // Add markers for filtered places
-    filteredPlaces.forEach((place: Place) => {
+    // Add markers for filtered or fallback places
+    const placesToRender = filteredPlaces.length ? filteredPlaces : places || [];
+  
+    placesToRender.forEach((place: Place) => {
       if (place.latitude && place.longitude) {
         const marker = new google.maps.Marker({
           position: { lat: place.latitude, lng: place.longitude },
           map: mapInstance,
           title: `${place.name} - Free Tables: ${place.freeTables?.length || 0}`,
           icon: {
-            url: "/marker.png",
+            url: "/markerIcon.png",
             scaledSize: new google.maps.Size(40, 40),
             origin: new google.maps.Point(0, 0),
             anchor: new google.maps.Point(20, 20),
@@ -99,43 +100,62 @@ const Map: React.FC<{
         markersRef.current.push(marker);
       }
     });
-  }, [mapInstance, userPosition, filteredPlaces]);
+  }, [mapInstance, filteredPlaces, places, userPosition]);
   
   useEffect(() => {
-    // Fetch and store user's position
-    if (Cookies.get("geolocationAllowed") === "true") {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const userPosition = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
-          setUserPosition(userPosition);
-          mapInstance?.setCenter(userPosition);
-        },
-        () => {
-          console.warn("Geolocation failed. Using default position.");
-          mapInstance?.setCenter(defaultPosition);
-        }
-      );
-    } else {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const userPosition = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
-          setUserPosition(userPosition);
-          Cookies.set("geolocationAllowed", "true", { expires: 7 });
-          mapInstance?.setCenter(userPosition);
-        },
-        () => {
-          alert("Unable to fetch your location. Using default position.");
-          mapInstance?.setCenter(defaultPosition);
-        }
-      );
-    }
+    const getGeolocation = () => {
+      const successCallback = (position: GeolocationPosition) => {
+        const userPosition = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+        setUserPosition(userPosition);
+        mapInstance?.setCenter(userPosition);
+      };
+  
+      const errorCallback = (error: GeolocationPositionError | null) => {
+        console.warn("Geolocation error:", error?.message || "Unknown error");
+        alert("Unable to fetch your location. Rendering default markers.");
+        setUserPosition(null); // Indicate fallback mode
+        mapInstance?.setCenter(defaultPosition); // Default position
+      };
+      
+      if (navigator.permissions) {
+        navigator.permissions
+          .query({ name: "geolocation" as PermissionName })
+          .then((permission) => {
+            if (permission.state === "denied") {
+              alert("Please enable location access in your browser settings.");
+              errorCallback(null);
+              return;
+            }
+      
+            navigator.geolocation.getCurrentPosition(successCallback, errorCallback, {
+              enableHighAccuracy: true,
+              timeout: 10000,
+              maximumAge: 0,
+            });
+          })
+          .catch(() => {
+            navigator.geolocation.getCurrentPosition(successCallback, errorCallback, {
+              enableHighAccuracy: true,
+              timeout: 10000,
+              maximumAge: 0,
+            });
+          });
+      } else {
+        navigator.geolocation.getCurrentPosition(successCallback, errorCallback, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        });
+      }
+      
+    };
+  
+    getGeolocation();
   }, [mapInstance]);
+  
   
   
   const handleSearch = () => {

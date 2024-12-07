@@ -5,6 +5,8 @@ import ClosestPlaces from "@/components/map/ClosestPlaces";
 import Filter from "@/components/Filter";
 import { usePlaces } from "@/hooks/usePlaces";
 import MoreDetailsComponent from "@/components/MoreDetailsComponent";
+import Image from "next/image";
+import { FaWalking } from "react-icons/fa";
 
 export default function UserPage() {
   const { data: places, isLoading, isError } = usePlaces(); // Fetch places using React Query
@@ -30,7 +32,9 @@ export default function UserPage() {
   };
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return <div className="text-center flex flex-col items-center justify-center w-screen h-screen">
+      <Image src="/loadingIcon.gif" alt="Loading" width={50} height={50} />
+    </div>;
   }
   if (isError) {
     return <p>Failed to load places. Try again later.</p>;
@@ -46,26 +50,26 @@ export default function UserPage() {
           currentScreen === "default" ? "translate-x-0" : "-translate-x-full"
         } bg-gray-100`}
       >
-        <div id="map" className="px-1 h-[600px]">
+        <div id="map" className="px-1 h-[650px]">
           <Map
             onMarkerClick={() => {}}
             onMoreDetailsClick={goToDetails}
             filteredPlaces={filteredPlaces} // Use filtered data
           />
-          <div className="bg-[#52208b] w-full h-full ">
+          <div className="bg-[#52208b] w-full h-fit ">
           <Filter
-        filters={[
-          { label: "Within 5 km", value: "within5km" },
-          { label: "Table 2 seats", value: "2seats" },
-          { label: "Table 4 seats", value: "4seats" },
-          { label: "Table 5+ seats", value: "5plus" },
-          { label: "Events", value: "event" },
-        ]}
-        activeFilters={activeFilters}
-        onFilterChange={setActiveFilters}
-        places={places || []}
-        onFilterResult={handleFilterResult}
-      />
+  filters={[
+    { label: "Within 5 km", value: "within5km", icon: <FaWalking /> },
+    { label: "2 seats", value: "2seats" },
+    { label: "4 seats", value: "4seats" },
+    { label: "5+ seats", value: "5plus" },
+    { label: "Events", value: "event" },
+  ]}
+  activeFilters={activeFilters}
+  onFilterChange={setActiveFilters}
+  places={places || []}
+  onFilterResult={handleFilterResult}
+/>
           <ClosestPlaces
             filteredPlaces={filteredPlaces} // Use filtered data
             onMoreDetailsClick={goToDetails}

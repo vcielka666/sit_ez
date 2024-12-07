@@ -3,7 +3,9 @@ import React from "react";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { FaClock } from "react-icons/fa";
 import { FaMapMarkerAlt } from "react-icons/fa";
-
+import { MdPhone } from "react-icons/md"; // Contact icon
+import { FiGlobe } from "react-icons/fi"; // Website icon
+import { FiShare2 } from "react-icons/fi"; // Share ic
 
 
 const MoreDetailsComponent = ({ place, onBack }: { place: any; onBack: () => void }) => {
@@ -52,27 +54,38 @@ const MoreDetailsComponent = ({ place, onBack }: { place: any; onBack: () => voi
         </div>
         <p className="text-gray-700 mt-2">{place.description || "No description available."}</p>
 
-        <div className="mt-6 flex justify-around">
+        <div className="flex justify-around mt-4">
+        <div className="flex flex-col items-center">
           <button
-            className="bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600"
+            className="flex items-center gap-2 px-2 py-2 bg-purple-500 text-white rounded-full shadow hover:bg-blue-600"
           >
-            Contact
+            <MdPhone className="text-xl" />
           </button>
-          <button
-            className="bg-green-500 text-white px-4 py-2 rounded shadow hover:bg-green-600"
-          >
-            Website
-          </button>
-          <button
-            className="bg-purple-500 text-white px-4 py-2 rounded shadow hover:bg-purple-600"
-          >
-            Share
-          </button>
+          <p>Contact</p>
         </div>
+
+        <div className="flex flex-col items-center">
+          <button
+            className="flex items-center gap-2 px-2 py-2 bg-purple-500 text-white rounded-full shadow hover:bg-green-600"
+          >
+            <FiGlobe className="text-xl" />
+          </button>
+          <p>Website</p>
+        </div>
+
+        <div className="flex flex-col items-center">
+          <button
+            className="flex items-center gap-2 px-2 py-2 bg-purple-500 text-white rounded-full shadow hover:bg-purple-600"
+          >
+            <FiShare2 className="text-xl" />
+          </button>
+          <p>Share</p>
+        </div>
+      </div>
 
         <div className="mt-8">
           <h2 className="text-lg font-bold mb-2">Reservations</h2>
-          <p>Call us to book your table!</p>
+          <p>Reservation system work in progress!</p>
         </div>
 
         <div className="mt-8">
