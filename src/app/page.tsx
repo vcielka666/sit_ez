@@ -50,7 +50,7 @@ export default function UserPage() {
           currentScreen === "default" ? "translate-x-0" : "-translate-x-full"
         } bg-gray-100`}
       >
-        <div id="map" className="px-1 h-[650px]">
+        <div id="map" className="px-1 h-[550px]">
           <Map
             onMarkerClick={() => {}}
             onMoreDetailsClick={goToDetails}
