@@ -35,7 +35,7 @@ const Map: React.FC<{
   const [userPosition, setUserPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  const { data: places, isLoading, isError } = usePlaces(); // Fetch places using React Query
+  const { data: places } = usePlaces(); // Fetch places using React Query
 
   useEffect(() => {
     // Initialize the map only once
