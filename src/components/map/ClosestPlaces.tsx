@@ -9,9 +9,13 @@ interface Place {
   latitude: number;
   longitude: number;
   distance: number;
+  filteredPlaces: Place[];
 }
 
-const ClosestPlaces = ({ onMoreDetailsClick }: { onMoreDetailsClick: (place: Place) => void }) => {
+const ClosestPlaces = (
+  { onMoreDetailsClick }: { onMoreDetailsClick: (place: Place) => void;
+  filteredPlaces: Place[];
+  }) => {
   const [userPosition, setUserPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [closestPlaces, setClosestPlaces] = useState<Place[]>([]);
   const { data: places, isLoading, isError } = usePlaces();
@@ -52,7 +56,7 @@ const ClosestPlaces = ({ onMoreDetailsClick }: { onMoreDetailsClick: (place: Pla
   }, [userPosition, places]);
 
   return (
-    <div className="flex flex-col w-full h-fit relative min-h-14 bg-[#52208b] top-[-30px] z-10 p-4 text-white">
+    <div className="flex flex-col w-full h-fit relative min-h-14 bg-[#52208b] z-10 p-2 top-[-10px] text-white">
       <h2 className="text-lg font-bold mb-2">Nearby</h2>
       {isLoading && <p>Loading places...</p>}
       {isError && <p>Failed to load places.</p>}
