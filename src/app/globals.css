@@ -86,3 +86,17 @@ body {
     @apply bg-background text-foreground;
   }
 }
+@keyframes rollUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-rollUp {
+  animation: rollUp 1.2s ease-out forwards;
+}

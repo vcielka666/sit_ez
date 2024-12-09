@@ -33,7 +33,7 @@ const Map: React.FC<{
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
   const [userPosition, setUserPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
-
+  const userMarkerRef = useRef<google.maps.Marker | null>(null);
   const { data: places } = usePlaces(); // Fetch places using React Query
 
   useEffect(() => {
@@ -77,7 +77,10 @@ const Map: React.FC<{
           map: mapInstance,
           title: `${place.name} - Free Tables: ${place.freeTables?.length || 0}`,
           icon: {
-            url: "/markerIcon.png",
+            url:
+              selectedPlace?.id === place.id
+                ? "/markerIconActive.png" // Active icon
+                : "/markerIcon.png", // Default icon
             scaledSize: new google.maps.Size(40, 40),
             origin: new google.maps.Point(0, 0),
             anchor: new google.maps.Point(20, 20),
@@ -94,14 +97,57 @@ const Map: React.FC<{
               )
             : null;
           setSelectedPlace({ ...place, distance });
+          mapInstance?.setCenter({ lat: place.latitude, lng: place.longitude }); 
+          mapInstance?.setZoom(15); 
           onMarkerClick(place);
         });
   
         markersRef.current.push(marker);
       }
     });
-  }, [mapInstance, filteredPlaces, places, userPosition]);
+  }, [mapInstance, filteredPlaces, places, userPosition, selectedPlace]);
   
+  const updateUserMarker = (position: { lat: number; lng: number }) => {
+    if (!mapInstance) return;
+  
+    if (!userMarkerRef.current) {
+      userMarkerRef.current = new google.maps.Marker({
+        position,
+        map: mapInstance,
+        title: "Your Position",
+        icon: {
+    
+          
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 10, 
+          fillColor: "#4285F4",
+          fillOpacity: 1,
+          strokeColor: "white",
+          strokeWeight: 2,
+        },
+      });
+    } else {
+      userMarkerRef.current.setPosition(position);
+    }
+  };
+  
+  useEffect(() => {
+    if (!mapInstance || !userPosition) return;
+  
+    // Update or create the user marker whenever the position changes
+    updateUserMarker(userPosition);
+  
+    return () => {
+      // Clean up the marker on unmount
+      if (userMarkerRef.current) {
+        userMarkerRef.current.setMap(null);
+        userMarkerRef.current = null;
+      }
+    };
+  }, [mapInstance, userPosition]);
+  
+  
+  // Geolocation effect
   useEffect(() => {
     const getGeolocation = () => {
       const successCallback = (position: GeolocationPosition) => {
@@ -111,13 +157,13 @@ const Map: React.FC<{
         };
         setUserPosition(userPosition);
         mapInstance?.setCenter(userPosition);
+        updateUserMarker(userPosition); // Add user position marker
       };
   
       const errorCallback = (error: GeolocationPositionError | null) => {
         console.warn("Geolocation error:", error?.message || "Unknown error");
         alert("Unable to fetch your location. Rendering default markers.");
-        setUserPosition(null); // Indicate fallback mode
-        mapInstance?.setCenter(defaultPosition); // Default position
+        mapInstance?.setCenter(defaultPosition);
       };
       
       if (navigator.permissions) {
@@ -202,70 +248,77 @@ const Map: React.FC<{
       {/* Google Map */}
       <div ref={mapRef} className="w-full h-full"></div>
 
-      {/* Selected Place Modal */}
-      {selectedPlace && (
-        <div className="absolute bottom-10 left-10 bg-white p-4 rounded shadow max-w-sm">
-          <h2 className="text-lg font-bold">{selectedPlace.name}</h2>
+      
+   {/* Selected Place Modal */}
+{selectedPlace && (
+  <div
+    className={`absolute w-full bottom-[30px] left-0 bg-white p-4 rounded shadow max-w-sm animate-rollUp`}
+    style={{ transform: "translateY(0)", opacity: 1 }}
+  >
+    <h2 className="text-lg font-bold">{selectedPlace.name}</h2>
 
-          {selectedPlace.distance && (
-            <p className="text-gray-600 mb-2">Distance: {selectedPlace.distance.toFixed(2)} km</p>
-          )}
+    {selectedPlace.distance && (
+      <p className="text-gray-600 mb-2">Distance: {selectedPlace.distance.toFixed(2)} km</p>
+    )}
 
-          {selectedPlace.description && (
-            <p className="text-gray-700 mb-2">{selectedPlace.description}</p>
-          )}
+    {selectedPlace.description && (
+      <p className="text-gray-700 mb-2">{selectedPlace.description}</p>
+    )}
 
-          {selectedPlace.pictureUrls && selectedPlace.pictureUrls.length > 0 && (
-            <Carousel className="w-full max-w-sm">
-              <CarouselContent className="-ml-1">
-                {selectedPlace.pictureUrls.map((url: string, index: number) => (
-                  <CarouselItem key={index} className="pl-1 md:basis-1/2 lg:basis-1/3">
-                    <div className="p-1">
-                      <Card>
-                        <CardContent className="flex aspect-square items-center justify-center">
-                          <img
-                            src={url}
-                            alt={`Image ${index + 1} of ${selectedPlace.name}`}
-                            className="w-full h-full "
-                          />
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-            </Carousel>
-          )}
+    {selectedPlace.pictureUrls && selectedPlace.pictureUrls.length > 0 && (
+      <Carousel className="w-full max-w-sm">
+        <CarouselContent className="-ml-1">
+          {selectedPlace.pictureUrls.map((url: string, index: number) => (
+            <CarouselItem key={index} className="pl-1 md:basis-1/2 lg:basis-1/3">
+              <div className="p-1">
+                <Card>
+                  <CardContent className="flex aspect-square items-center justify-center">
+                    <img
+                      src={url}
+                      alt={`Image ${index + 1} of ${selectedPlace.name}`}
+                      className="w-full h-full"
+                      loading="lazy"
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </Carousel>
+    )}
 
-          <h3 className="mt-4 font-bold">Tables</h3>
-          {selectedPlace.freeTables && selectedPlace.freeTables.length > 0 ? (
-            <ul className="list-disc ml-4">
-              {selectedPlace.freeTables.map((table: any) => (
-                <li key={table.id}>
-                  Table {table.tableNumber}: {table.totalSeats} seats
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-500">No tables available.</p>
-          )}
+    <h3 className="mt-4 font-bold">Tables</h3>
+    {selectedPlace.freeTables && selectedPlace.freeTables.length > 0 ? (
+      <ul className="list-disc ml-4">
+        {selectedPlace.freeTables.map((table: any) => (
+          <li key={table.id}>
+            Table {table.tableNumber}: {table.totalSeats} seats
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p className="text-gray-500">No tables available.</p>
+    )}
 
-          <div className="mt-4 flex justify-between">
-            <button
-              onClick={() => setSelectedPlace(null)}
-              className="bg-red-500 text-white px-4 py-2 rounded"
-            >
-              Close
-            </button>
-            <button
-              onClick={() => onMoreDetailsClick(selectedPlace)}
-              className="bg-blue-500 text-white px-4 py-2 rounded"
-            >
-              More Details
-            </button>
-          </div>
-        </div>
-      )}
+    <div className="mt-4 flex justify-between">
+      <button
+        onClick={() => setSelectedPlace(null)}
+        className="bg-red-500 text-white px-4 py-2 rounded"
+      >
+        Close
+      </button>
+      <button
+        onClick={() => onMoreDetailsClick(selectedPlace)}
+        className="bg-blue-500 text-white px-4 py-2 rounded"
+      >
+        More Details
+      </button>
+    </div>
+  </div>
+)}
+
+
     </div>
   );
 };
