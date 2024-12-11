@@ -6,7 +6,8 @@ import Filter from "@/components/Filter";
 import { usePlaces } from "@/hooks/usePlaces";
 import MoreDetailsComponent from "@/components/MoreDetailsComponent";
 import Image from "next/image";
-import { FaWalking } from "react-icons/fa";
+import { FaClock, FaDollarSign, FaPaw, FaWalking, FaWifi } from "react-icons/fa";
+import { FiSettings } from "react-icons/fi";
 
 export default function UserPage() {
   const { data: places, isLoading, isError } = usePlaces(); // Fetch places using React Query
@@ -59,7 +60,7 @@ export default function UserPage() {
   }
 
   return (
-    <div className="relative">
+    <div className="relative min-w-[320px]">
       {/* Main Screen */}
       <div
         className={`absolute inset-0 transition-transform duration-500 ${
@@ -75,19 +76,25 @@ export default function UserPage() {
             setMapInstance={setMapInstance}
           />
           <div className="bg-[#52208b] w-full h-fit">
-            <Filter
-              filters={[
-                { label: "Within 5 km", value: "within5km", icon: <FaWalking /> },
-                { label: "2 seats", value: "2seats" },
-                { label: "4 seats", value: "4seats" },
-                { label: "5+ seats", value: "5plus" },
-                { label: "Events", value: "event" },
-              ]}
-              activeFilters={activeFilters}
-              onFilterChange={setActiveFilters}
-              places={places || []}
-              onFilterResult={handleFilterResult}
-            />
+          <Filter
+  filters={[
+    { label: "Filters:", value:"Filters", icon: <FiSettings /> },
+    { label: " < 5 km", value: "within5km", icon: <FaWalking /> },
+    { label: "2 seats", value: "2seats" },
+    { label: "4 seats", value: "4seats" },
+    { label: "5+ seats", value: "5plus" },
+    { label: "Events", value: "event" },
+    { label: "Open Now", value: "openNow", icon: <FaClock /> },
+    { label: "Price: $$", value: "priceMid", icon: <FaDollarSign /> },
+    { label: "Wi-Fi", value: "wifi", icon: <FaWifi /> },
+    { label: "Pet-Friendly", value: "petFriendly", icon: <FaPaw /> },
+  ]}
+  activeFilters={activeFilters}
+  onFilterChange={setActiveFilters}
+  places={places || []}
+  onFilterResult={handleFilterResult}
+/>
+
               <ClosestPlaces
           filteredPlaces={filteredPlaces}
           onPlaceClick={(place: any) => {

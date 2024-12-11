@@ -255,7 +255,7 @@ const Map: React.FC<{
    {/* Selected Place Modal */}
 {selectedPlace && (
   <div
-    className={`absolute w-full bottom-[30px] left-0 bg-white p-4 rounded shadow max-w-sm animate-rollUp`}
+    className={`absolute z-10 w-full bottom-[30px] left-0 bg-white p-4 rounded shadow max-w-sm animate-rollUp`}
     style={{ transform: "translateY(0)", opacity: 1 }}
   >
     <h2 className="text-lg font-bold">{selectedPlace.name}</h2>
@@ -268,28 +268,39 @@ const Map: React.FC<{
       <p className="text-gray-700 mb-2">{selectedPlace.description}</p>
     )}
 
-    {selectedPlace.pictureUrls && selectedPlace.pictureUrls.length > 0 && (
-      <Carousel className="w-full max-w-sm">
-        <CarouselContent className="-ml-1">
-          {selectedPlace.pictureUrls.map((url: string, index: number) => (
-            <CarouselItem key={index} className="pl-1 md:basis-1/2 lg:basis-1/3">
-              <div className="p-1">
-                <Card>
-                  <CardContent className="flex aspect-square items-center justify-center">
-                    <img
-                      src={url}
-                      alt={`Image ${index + 1} of ${selectedPlace.name}`}
-                      className="w-full h-full"
-                      loading="lazy"
-                    />
-                  </CardContent>
-                </Card>
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
-    )}
+{selectedPlace.pictureUrls && selectedPlace.pictureUrls.length > 0 && (
+  <Carousel
+    opts={{
+      align: "start",
+    }}
+    className="w-full"
+  >
+    <CarouselContent className="flex gap-2">
+      {selectedPlace.pictureUrls.map((url: string, index: number) => (
+        <CarouselItem
+          key={index}
+          className="flex-shrink-0 basis-1/3"
+        >
+          <div className="p-2">
+            <Card>
+              <CardContent className="relative w-full aspect-square">
+                <img
+                  src={url}
+                  alt={`Image ${index + 1} of ${selectedPlace.name}`}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </CardContent>
+            </Card>
+          </div>
+        </CarouselItem>
+      ))}
+    </CarouselContent>
+   
+  </Carousel>
+)}
+
+
 
     <h3 className="mt-4 font-bold">Tables</h3>
     {selectedPlace.freeTables && selectedPlace.freeTables.length > 0 ? (
