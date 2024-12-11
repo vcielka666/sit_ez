@@ -71,7 +71,7 @@ const ClosestPlaces: React.FC<{
         
           <div>
             {place.pictureUrls && place.pictureUrls.length > 0 && (
-                <div className="w-[80] h-[80px] rounded-sm">
+                <div className="w-[80px] h-[80px] rounded-sm">
                 <img
                     src={place.pictureUrls[2]}
                     alt={`Image of ${place.name}`}
