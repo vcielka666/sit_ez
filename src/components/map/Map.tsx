@@ -6,6 +6,7 @@ import { usePlaces } from "@/hooks/usePlaces";
 import { Carousel, CarouselContent, CarouselItem } from "../ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
 import { calculateDistance } from "../../../utils/geolocation";
+import { set } from "react-hook-form";
 
 interface Place {
   id: string;
@@ -26,11 +27,13 @@ const Map: React.FC<{
   onMarkerClick: (place: Place) => void;
   onMoreDetailsClick: (place: any) => void;
   filteredPlaces: Place[];
-}> = ({ onMarkerClick, onMoreDetailsClick, filteredPlaces }) => {
+  mapInstance: google.maps.Map | null;
+  setMapInstance: React.Dispatch<React.SetStateAction<google.maps.Map | null>>;
+
+}> = ({ onMarkerClick, onMoreDetailsClick, filteredPlaces, mapInstance, setMapInstance }) => {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const [defaultPosition] = useState({ lat: 50.0755, lng: 14.4378 }); // Prague
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
-  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
   const [userPosition, setUserPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const userMarkerRef = useRef<google.maps.Marker | null>(null);
@@ -56,7 +59,7 @@ const Map: React.FC<{
   
       setMapInstance(map);
     }
-  }, [mapInstance, mapRef]);
+  }, [mapInstance, mapRef, setMapInstance]);
   
   const markersRef = useRef<google.maps.Marker[]>([]);
   

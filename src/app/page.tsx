@@ -15,6 +15,14 @@ export default function UserPage() {
   const [activeFilters, setActiveFilters] = useState<string[]>([]); // Shared filter state
   const [filteredPlaces, setFilteredPlaces] = useState<any[]>([]); // Filtered places
   const [isAnimating, setIsAnimating] = useState<boolean>(false); // Track animation state
+  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
+
+  const handleZoomToPlace = (place: any) => {
+    if (mapInstance && place.latitude && place.longitude) {
+      mapInstance.setCenter({ lat: place.latitude, lng: place.longitude });
+      mapInstance.setZoom(15); // Zoom level for a closer view
+    }
+  };
 
   const handleFilterResult = (filtered: any[]) => {
     if (JSON.stringify(filteredPlaces) !== JSON.stringify(filtered)) {
@@ -63,6 +71,8 @@ export default function UserPage() {
             onMarkerClick={() => {}}
             onMoreDetailsClick={goToDetails}
             filteredPlaces={filteredPlaces} // Use filtered data
+            mapInstance={mapInstance}
+            setMapInstance={setMapInstance}
           />
           <div className="bg-[#52208b] w-full h-fit">
             <Filter
@@ -78,10 +88,13 @@ export default function UserPage() {
               places={places || []}
               onFilterResult={handleFilterResult}
             />
-            <ClosestPlaces
-              filteredPlaces={filteredPlaces} // Use filtered data
-              onMoreDetailsClick={goToDetails}
-            />
+              <ClosestPlaces
+          filteredPlaces={filteredPlaces}
+          onPlaceClick={(place: any) => {
+            handleZoomToPlace(place); 
+            goToDetails(place); 
+          }}
+        />
           </div>
         </div>
       </div>
