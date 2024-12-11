@@ -17,7 +17,7 @@ interface Place {
 const ClosestPlaces: React.FC<{
   filteredPlaces: Place[]; // Declare the type of filteredPlaces
   onPlaceClick: (place: Place) => void; // Declare the type of onPlaceClick
-}> = ({ filteredPlaces, onPlaceClick }) => {
+}> = ({  onPlaceClick }) => {
   const [userPosition, setUserPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [closestPlaces, setClosestPlaces] = useState<Place[]>([]);
   const { data: places, isLoading, isError } = usePlaces();

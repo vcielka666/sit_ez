@@ -6,7 +6,7 @@ import { usePlaces } from "@/hooks/usePlaces";
 import { Carousel, CarouselContent, CarouselItem } from "../ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
 import { calculateDistance } from "../../../utils/geolocation";
-import { set } from "react-hook-form";
+
 
 interface Place {
   id: string;
