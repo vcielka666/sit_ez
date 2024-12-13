@@ -51,12 +51,12 @@ const Filter: React.FC<FilterProps> = ({
       filteredPlaces = filteredPlaces.filter((place) => place.hasEvent);
     }
     if (activeFilters.includes("openNow")) {
-      const currentTime = new Date().getHours();
-      filteredPlaces = filteredPlaces.filter(
-        (place) =>
-          place.openingHours.start <= currentTime &&
-          place.openingHours.end >= currentTime
-      );
+      // const currentTime = new Date().getHours();
+      // filteredPlaces = filteredPlaces.filter(
+      //   (place) =>
+      //     place.openingHours.start <= currentTime &&
+      //     place.openingHours.end >= currentTime
+      // );
     }
     if (activeFilters.includes("priceMid")) {
       filteredPlaces = filteredPlaces.filter((place) => place.price === "$$");
@@ -72,7 +72,7 @@ const Filter: React.FC<FilterProps> = ({
   }, [activeFilters, places, onFilterResult]);
 
   return (
-    <div className="bg-[#52208b] relative w-full top-[-30px] z-40">
+    <div className="bg-[#52208b] relative w-full z-40">
       {/* Unified layout for all screens */}
       <Swiper
         spaceBetween={10}
@@ -92,7 +92,7 @@ const Filter: React.FC<FilterProps> = ({
               // Toggleable button
               <button
                 onClick={() => toggleFilter(filter.value)}
-                className={`px-2 py-2 rounded-full text-xs border flex items-center gap-1 ${
+                className={`px-2 py-2 my-1 rounded-full text-xs border flex items-center gap-1 ${
                   activeFilters.includes(filter.value)
                     ? "bg-green-800 text-white border-black shadow-sm shadow-green-500/50"
                     : "bg-white text-black border-black"

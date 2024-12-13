@@ -38,6 +38,33 @@ const Map: React.FC<{
   const [searchQuery, setSearchQuery] = useState<string>("");
   const userMarkerRef = useRef<google.maps.Marker | null>(null);
   const { data: places } = usePlaces(); // Fetch places using React Query
+  const modalRef = useRef<HTMLDivElement | null>(null);
+
+  // Close modal when clicking only on the map
+  useEffect(() => {
+    const handleClickOrTouchOutside = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node;
+  
+      // Check if the click or touch is within the map container but outside the modal
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(target) && // Ensure click/touch is outside the modal
+        mapRef.current?.contains(target) // Ensure click/touch is within the map container
+      ) {
+        setSelectedPlace(null);
+      }
+    };
+  
+    document.addEventListener("mousedown", handleClickOrTouchOutside);
+    document.addEventListener("touchstart", handleClickOrTouchOutside); // Added touch support
+  
+    return () => {
+      document.removeEventListener("mousedown", handleClickOrTouchOutside);
+      document.removeEventListener("touchstart", handleClickOrTouchOutside);
+    };
+  }, [mapRef, modalRef]);
+  
+  
 
   useEffect(() => {
     // Initialize the map only once
@@ -255,6 +282,7 @@ const Map: React.FC<{
    {/* Selected Place Modal */}
 {selectedPlace && (
   <div
+    ref={modalRef}
     className={`absolute z-10 w-full bottom-[30px] left-0 bg-white p-4 rounded shadow max-w-sm animate-rollUp`}
     style={{ transform: "translateY(0)", opacity: 1 }}
   >

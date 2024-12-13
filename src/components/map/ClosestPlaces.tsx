@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { usePlaces } from "@/hooks/usePlaces";
 import { calculateDistance } from "../../../utils/geolocation";
-import { FaClock, FaDollarSign, FaMapMarkerAlt, FaRegStar, FaStar, FaStarHalfAlt } from "react-icons/fa";
+import { FaClock, FaMapMarkerAlt, FaRegStar, FaStar, FaStarHalfAlt } from "react-icons/fa";
 
 interface Place {
   id: string;
@@ -58,7 +58,7 @@ const ClosestPlaces: React.FC<{
   }, [userPosition, places]);
 
   return (
-    <div className="flex flex-col w-full h-fit relative min-h-14 bg-[#52208b] z-10 px-2 top-[-10px] text-white">
+    <div className="flex flex-col w-full h-fit relative min-h-14 bg-[#52208b] z-10 px-2  text-white">
       <h2 className="text-lg font-bold mb-2">Nearby</h2>
       {isLoading && <p>Loading places...</p>}
       {isError && <p>Failed to load places.</p>}
@@ -107,9 +107,8 @@ const ClosestPlaces: React.FC<{
                             <FaClock className="ml-2 text-gray-500 mr-2" />
                             <div className="flex items-center justify-between w-full">
                               <span className="text-gray-600">8 AM - 10 PM</span>
-                              <span className="text-[#978415] inline-flex">
-                                <FaDollarSign />
-                                <FaDollarSign />
+                              <span className="text-yellow-500 inline-flex">
+                              <span className="text-gray-600"> $</span> $$ 
                               </span>
                             </div>
                           </div>

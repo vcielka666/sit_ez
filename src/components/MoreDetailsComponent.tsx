@@ -12,7 +12,7 @@ const MoreDetailsComponent = ({ place, onBack }: { place: any; onBack: () => voi
   if (!place) return null;
 
   return (
-    <div className="flex flex-col w-full h-full bg-white">
+    <div className="flex flex-col w-full h-fit bg-white">
       {/* Render the first image */}
       {place.pictureUrls && place.pictureUrls.length > 0 && (
         <div className="w-full h-64">

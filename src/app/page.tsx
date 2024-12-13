@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import DraggableSheet from "@/components/DraggableSheet";
 import Map from "@/components/map/Map";
 import ClosestPlaces from "@/components/map/ClosestPlaces";
 import Filter from "@/components/Filter";
@@ -10,18 +11,25 @@ import { FaClock, FaDollarSign, FaPaw, FaWalking, FaWifi } from "react-icons/fa"
 import { FiSettings } from "react-icons/fi";
 
 export default function UserPage() {
-  const { data: places, isLoading, isError } = usePlaces(); // Fetch places using React Query
+  const { data: places, isLoading, isError } = usePlaces();
   const [currentScreen, setCurrentScreen] = useState<"default" | "details">("default");
-  const [selectedPlace, setSelectedPlace] = useState<any>(null); // For "More Details"
-  const [activeFilters, setActiveFilters] = useState<string[]>([]); // Shared filter state
-  const [filteredPlaces, setFilteredPlaces] = useState<any[]>([]); // Filtered places
-  const [isAnimating, setIsAnimating] = useState<boolean>(false); // Track animation state
+  const [selectedPlace, setSelectedPlace] = useState<any>(null);
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [filteredPlaces, setFilteredPlaces] = useState<any[]>([]);
+  const [mapHeight, setMapHeight] = useState(500); // Hardcoded initial height in px
+  const [isAnimating, setIsAnimating] = useState<boolean>(false);
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
+
+  useEffect(() => {
+    if (mapInstance) {
+      google.maps.event.trigger(mapInstance, "resize");
+    }
+  }, [mapHeight, mapInstance]);
 
   const handleZoomToPlace = (place: any) => {
     if (mapInstance && place.latitude && place.longitude) {
       mapInstance.setCenter({ lat: place.latitude, lng: place.longitude });
-      mapInstance.setZoom(15); // Zoom level for a closer view
+      mapInstance.setZoom(15);
     }
   };
 
@@ -32,12 +40,12 @@ export default function UserPage() {
   };
 
   const goToDetails = (place: any) => {
-    setSelectedPlace(place);
     setIsAnimating(true); // Start animation
     setTimeout(() => {
+      setSelectedPlace(place);
       setCurrentScreen("details");
       setIsAnimating(false); // Stop animation
-    }, 50); // Match the duration of the swipe animation
+    }, 300); // Match the duration of the CSS animation
   };
 
   const goBack = () => {
@@ -45,7 +53,7 @@ export default function UserPage() {
     setTimeout(() => {
       setCurrentScreen("default");
       setIsAnimating(false); // Stop animation
-    }, 50); // Match the duration of the swipe animation
+    }, 300); // Match the duration of the CSS animation
   };
 
   if (isLoading) {
@@ -64,56 +72,71 @@ export default function UserPage() {
       {/* Main Screen */}
       <div
         className={`absolute inset-0 transition-transform duration-500 ${
-          currentScreen === "default" ? "translate-x-0" : "-translate-x-full"
-        } ${currentScreen === "details" && !isAnimating ? "hidden" : ""} bg-gray-100`}
+          currentScreen === "default" ? (isAnimating ? "-translate-x-full" : "translate-x-0") : "translate-x-full"
+        } bg-gray-100`}
       >
-        <div id="map" className="px-1 h-[550px]">
+        <div
+          id="map"
+          style={{
+            height: `${mapHeight}px`, // Exact pixel height
+            transition: "height 0.3s ease",
+          }}
+        >
           <Map
             onMarkerClick={() => {}}
             onMoreDetailsClick={goToDetails}
-            filteredPlaces={filteredPlaces} // Use filtered data
+            filteredPlaces={filteredPlaces}
             mapInstance={mapInstance}
             setMapInstance={setMapInstance}
           />
-          <div className="bg-[#52208b] w-full h-fit">
-          <Filter
-  filters={[
-    { label: "Filters:", value:"Filters", icon: <FiSettings /> },
-    { label: " < 5 km", value: "within5km", icon: <FaWalking /> },
-    { label: "2 seats", value: "2seats" },
-    { label: "4 seats", value: "4seats" },
-    { label: "5+ seats", value: "5plus" },
-    { label: "Events", value: "event" },
-    { label: "Open Now", value: "openNow", icon: <FaClock /> },
-    { label: "Price: $$", value: "priceMid", icon: <FaDollarSign /> },
-    { label: "Wi-Fi", value: "wifi", icon: <FaWifi /> },
-    { label: "Pet-Friendly", value: "petFriendly", icon: <FaPaw /> },
-  ]}
-  activeFilters={activeFilters}
-  onFilterChange={setActiveFilters}
-  places={places || []}
-  onFilterResult={handleFilterResult}
-/>
-
-              <ClosestPlaces
-          filteredPlaces={filteredPlaces}
-          onPlaceClick={(place: any) => {
-            handleZoomToPlace(place); 
-            goToDetails(place); 
-          }}
-        />
-          </div>
         </div>
       </div>
 
+      {/* Draggable Bottom Sheet */}
+      {currentScreen === "default" && (
+        <DraggableSheet
+          minHeight={100} // 10% of screen height
+          maxHeight={window.innerHeight * 0.8} // 80% of screen height
+          onHeightChange={(newHeight) => setMapHeight(window.innerHeight - newHeight)}
+        >
+          <Filter
+            filters={[
+              { label: "Filters:", value: "Filters", icon: <FiSettings /> },
+              { label: " < 5 km", value: "within5km", icon: <FaWalking /> },
+              { label: "2 seats", value: "2seats" },
+              { label: "4 seats", value: "4seats" },
+              { label: "5+ seats", value: "5plus" },
+              { label: "Events", value: "event" },
+              { label: "Open Now", value: "openNow", icon: <FaClock /> },
+              { label: "Price: $$", value: "priceMid", icon: <FaDollarSign /> },
+              { label: "Wi-Fi", value: "wifi", icon: <FaWifi /> },
+              { label: "Pet-Friendly", value: "petFriendly", icon: <FaPaw /> },
+            ]}
+            activeFilters={activeFilters}
+            onFilterChange={setActiveFilters}
+            places={places || []}
+            onFilterResult={handleFilterResult}
+          />
+          <ClosestPlaces
+            filteredPlaces={filteredPlaces}
+            onPlaceClick={(place: any) => {
+              handleZoomToPlace(place);
+              goToDetails(place);
+            }}
+          />
+        </DraggableSheet>
+      )}
+
       {/* Details Screen */}
-      <div
-        className={`absolute inset-0 transition-transform duration-500 ${
-          currentScreen === "details" ? "translate-x-0" : "translate-x-full"
-        } ${currentScreen === "default" && !isAnimating ? "hidden" : ""} bg-gray-200`}
-      >
-        <MoreDetailsComponent place={selectedPlace} onBack={goBack} />
-      </div>
+      {currentScreen === "details" && (
+        <div
+          className={`absolute inset-0 transition-transform duration-500 ${
+            currentScreen === "details" ? (isAnimating ? "translate-x-full" : "translate-x-0") : "-translate-x-full"
+          } bg-gray-200`}
+        >
+          <MoreDetailsComponent place={selectedPlace} onBack={goBack} />
+        </div>
+      )}
     </div>
   );
 }
