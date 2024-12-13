@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 
 interface DraggableSheetProps {
   children: React.ReactNode;
@@ -15,6 +15,13 @@ const DraggableSheet: React.FC<DraggableSheetProps> = ({
 }) => {
   const [height, setHeight] = useState(maxHeight / 2); // Start in the middle
   const isDragging = useRef(false);
+
+  // Notify parent of initial height on component mount
+  useEffect(() => {
+    if (onHeightChange) {
+      onHeightChange(height); // Notify parent with the initial height
+    }
+  }, [height, onHeightChange]);
 
   const handleDrag = useCallback(
     (clientY: number) => {
@@ -59,7 +66,7 @@ const DraggableSheet: React.FC<DraggableSheetProps> = ({
 
   return (
     <div
-      className="fixed bottom-[14px] left-0 w-full bg-[#52208b] shadow-lg draggable-sheet"
+      className="fixed bottom-0 left-0 w-full bg-[#52208b] shadow-lg draggable-sheet"
       style={{ height, zIndex: 10 }}
     >
       <div

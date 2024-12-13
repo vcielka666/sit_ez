@@ -21,6 +21,7 @@ interface Place {
     totalSeats: number;
     freeSeats: number;
   }[];
+  
 }
 
 const Map: React.FC<{
@@ -29,8 +30,9 @@ const Map: React.FC<{
   filteredPlaces: Place[];
   mapInstance: google.maps.Map | null;
   setMapInstance: React.Dispatch<React.SetStateAction<google.maps.Map | null>>;
+  sheetHeight: number;
 
-}> = ({ onMarkerClick, onMoreDetailsClick, filteredPlaces, mapInstance, setMapInstance }) => {
+}> = ({ onMarkerClick, onMoreDetailsClick, filteredPlaces, mapInstance, setMapInstance, sheetHeight }) => {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const [defaultPosition] = useState({ lat: 50.0755, lng: 14.4378 }); // Prague
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
@@ -283,8 +285,13 @@ const Map: React.FC<{
 {selectedPlace && (
   <div
     ref={modalRef}
-    className={`absolute z-10 w-full bottom-[30px] left-0 bg-white p-4 rounded shadow max-w-sm animate-rollUp`}
-    style={{ transform: "translateY(0)", opacity: 1 }}
+    className={`absolute z-10 w-full mb-4 bg-white p-4 rounded shadow max-w-sm animate-rollUp`}
+    style={{ 
+      transform: "translateY(0)", 
+      opacity: 1,
+      bottom: `${sheetHeight}px`, 
+ 
+    }}
   >
     <h2 className="text-lg font-bold">{selectedPlace.name}</h2>
 

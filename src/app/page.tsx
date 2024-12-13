@@ -16,15 +16,16 @@ export default function UserPage() {
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [filteredPlaces, setFilteredPlaces] = useState<any[]>([]);
-  const [mapHeight, setMapHeight] = useState(500); // Hardcoded initial height in px
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
+  const [sheetHeight, setSheetHeight] = useState(80); 
+
 
   useEffect(() => {
     if (mapInstance) {
       google.maps.event.trigger(mapInstance, "resize");
     }
-  }, [mapHeight, mapInstance]);
+  }, [ mapInstance]);
 
   const handleZoomToPlace = (place: any) => {
     if (mapInstance && place.latitude && place.longitude) {
@@ -68,7 +69,7 @@ export default function UserPage() {
   }
 
   return (
-    <div className="relative min-w-[320px]">
+    <div className="relative min-w-[320px] h-screen">
       {/* Main Screen */}
       <div
         className={`absolute inset-0 transition-transform duration-500 ${
@@ -77,9 +78,9 @@ export default function UserPage() {
       >
         <div
           id="map"
+          className="absolute inset-0"
           style={{
-            height: `${mapHeight}px`, // Exact pixel height
-            transition: "height 0.3s ease",
+            height: "100vh", // Fullscreen map
           }}
         >
           <Map
@@ -88,6 +89,7 @@ export default function UserPage() {
             filteredPlaces={filteredPlaces}
             mapInstance={mapInstance}
             setMapInstance={setMapInstance}
+            sheetHeight={sheetHeight}
           />
         </div>
       </div>
@@ -95,9 +97,9 @@ export default function UserPage() {
       {/* Draggable Bottom Sheet */}
       {currentScreen === "default" && (
         <DraggableSheet
-          minHeight={100} // 10% of screen height
-          maxHeight={window.innerHeight * 0.8} // 80% of screen height
-          onHeightChange={(newHeight) => setMapHeight(window.innerHeight - newHeight)}
+          minHeight={80} // Fully collapsed state
+          maxHeight={window.innerHeight * 0.8} // Maximum drag-up state (80% of screen height)
+          onHeightChange={(newHeight) => setSheetHeight(newHeight)}
         >
           <Filter
             filters={[
