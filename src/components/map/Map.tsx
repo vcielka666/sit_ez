@@ -285,7 +285,7 @@ const Map: React.FC<{
 {selectedPlace && (
   <div
     ref={modalRef}
-    className={`absolute z-10 w-full mb-4 bg-white p-4 rounded shadow max-w-sm animate-rollUp`}
+    className={`absolute z-10 w-full bg-white p-4 rounded shadow max-w-sm animate-rollUp`}
     style={{ 
       transform: "translateY(0)", 
       opacity: 1,
